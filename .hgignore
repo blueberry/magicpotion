@@ -1,0 +1,15 @@
+syntax: glob
+*~
+*.swo
+*.swp
+*.vimsession
+lib/*
+build/*
+bin/*
+ivy/*
+local.properties
+dist/*
+target/*
+classes/*
+.settings
+

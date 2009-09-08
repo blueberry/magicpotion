@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.aloole</groupId>
+	<artifactId>magicpotion</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Magic Potion</name>
+	<url>http://aloole.org/magicpotion</url>
+	<dependencies>
+		<dependency>
+			<groupId>org.clojure</groupId>
+			<artifactId>clojure-lang</artifactId>
+			<version>1.1.0-alpha-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.clojure</groupId>
+			<artifactId>clojure-contrib</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.theoryinpractise</groupId>
+				<artifactId>clojure-maven-plugin</artifactId>
+				<configuration>
+
+					<sourceDirectories>
+						<sourceDirectory>submodule/compojure/src</sourceDirectory>
+						<sourceDirectory>src/main/clojure</sourceDirectory>
+					</sourceDirectories>
+
+					<testSourceDirectories>
+						<testSourceDirectory>src/test/clojure</testSourceDirectory>
+					</testSourceDirectories>
+
+					<testScript>src/test/clojure/all_tests.clj</testScript>
+				</configuration>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>Formos</id>
+			<name>Formos</name>
+			<url>http://tapestry.formos.com/maven-snapshot-repository/</url>
+		</repository>
+	</repositories>
+</project>
