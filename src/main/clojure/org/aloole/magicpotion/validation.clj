@@ -51,8 +51,9 @@
     (assoc result (key value-entry) errors)
     result))
 
-(defmulti violations (fn ([x] (type x))
-                     ([x y] [(type x) (type y)])))
+(defmulti violations (fn 
+                       ([x] (type x))
+                       ([x y] [(type x) (type y)])))
 
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
