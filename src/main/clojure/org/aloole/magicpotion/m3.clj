@@ -58,7 +58,7 @@
   [property-defs]
   (let [validators (zipmap (map :name property-defs) 
                            (map #(create-validator (deep :validators %)) property-defs))]
-        (reduce #(if (val %2) (assoc %1 (key %2) (val%2)) %1) {}  validators)))
+        (reduce #(if (val %2) (assoc %1 (key %2) (val%2)) %1) {} validators)))
 
 ;;---------------------------------------------------------------------
 (defn create-concept [concept-def]
@@ -73,6 +73,7 @@
             ::struct concept-struct
             ::validation/validators validators}))
        :meta {:type ::concept
+              ::def concept-def
               ::name concept-name
               ::validation/validators validators})))
 

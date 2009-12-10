@@ -29,8 +29,8 @@
          [person])
 
 (deftest test-concept
-         ;;(is (thrown? IllegalArgumentException  (professor ::first-name 15 
-           ;;          ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
+         (is (thrown? IllegalArgumentException  (professor ::first-name 15 
+                     ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
          (is (thrown? IllegalArgumentException  (professor ::first-name "pera" 
                      ::start-date (. (java.util.GregorianCalendar. 3000 01 04) getTime)))) 
          (is (map? (professor ::first-name "pera"))))
