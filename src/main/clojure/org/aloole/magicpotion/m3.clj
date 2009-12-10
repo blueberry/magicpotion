@@ -43,7 +43,7 @@
            (property-name conc))
          :meta {:type property-name
                 ::def property-def
-                ::validation/validator (create-validator (deep :validators property-def))})))
+                ::validation/validator (create-validator (reverse (deep :validators property-def)))})))
 
 (defmacro property
   [name validators super]

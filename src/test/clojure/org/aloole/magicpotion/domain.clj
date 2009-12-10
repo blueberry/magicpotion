@@ -9,8 +9,8 @@
           [])
 
 (property first-name
-          [string?] 
-          [])
+          [string? #(< 2 (.length %))]
+          [pname])
 
 (property start-date
           [in-past?] 
@@ -27,6 +27,12 @@
 (concept professor
          [start-date]
          [person])
+
+(deftest test-property-inheritance
+         (is (thrown? IllegalArgumentException  (professor ::first-name "jo")))
+         (is (= "Joe" (::first-name (professor ::first-name "Joe"))))
+         (is (thrown? IllegalArgumentException  (professor ::first-name 15)))
+         )
 
 (deftest test-concept
          (is (thrown? IllegalArgumentException  (professor ::first-name 15 

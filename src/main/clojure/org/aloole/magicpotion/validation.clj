@@ -38,9 +38,11 @@
    (assert (or (fn? f) (and (sequential? f) (every? fn? f))))
    (cond
      (fn? f) (fn [& args]
-               (if (apply f args) false (list f)))
+               (try
+                 (if (try (apply f args) (catch RuntimeException e false))
+                       false (list f))))
      (sequential? f) (fn [& args]
-                       (if-let [errors (seq (remove #(apply % args) f))]
+                       (if-let [errors (seq (remove #(try (apply % args) (catch RuntimeException e false)) f))]
                          errors
                          false))))
   ([f & more]
