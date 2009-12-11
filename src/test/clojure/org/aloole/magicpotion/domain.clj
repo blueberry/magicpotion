@@ -9,7 +9,7 @@
           [])
 
 (property first-name
-          [string? #(< 2 (.length %))]
+          [#(< 2 (.length %))]
           [pname])
 
 (property start-date
