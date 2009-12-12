@@ -43,6 +43,7 @@
            (property-name conc))
          :meta {:type property-name
                 ::def property-def
+                ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
                 ::validation/validator (create-validator (reverse (deep :validators property-def)))})))
 
 (defmacro property
@@ -65,7 +66,7 @@
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
         validators (create-validators (deep :properties concept-def))
-        hierarchy (infer-hierarchy(make-hierarchy) concept-def)]
+        hierarchy (infer-hierarchy (make-hierarchy) concept-def)]
   (ref (fn [& property-entries]
          (with-meta
            (apply struct-map concept-struct (validate validators property-entries))
