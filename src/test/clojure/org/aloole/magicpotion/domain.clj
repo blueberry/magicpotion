@@ -12,31 +12,80 @@
           [#(< 2 (.length %))]
           [pname])
 
+(property last-name
+          [#(< 3 (.length %))]
+          [pname])
+
 (property start-date
           [in-past?] 
           [])
 
-(property teach
-          [] 
-          [])
-
 (concept person
-         [first-name]
+         [first-name
+          last-name]
          [])
 	
 (concept professor
          [start-date]
          [person])
 
-(deftest test-property-inheritance
+(property transcedental-property
+          []
+          [last-name])
+
+(concept transcedental-being
+         [transcedental-property]
+         [professor])
+
+(deftest test-concept-inheritance
+         (is (= {::first-name nil, ::last-name nil} (person)))
+         (is (= {::first-name nil, ::last-name nil ::start-date nil} (professor))))
+
+(deftest test-concept-validator-inheritance
          (is (thrown? IllegalArgumentException  (professor ::first-name "jo")))
          (is (= "Joe" (::first-name (professor ::first-name "Joe"))))
          (is (thrown? IllegalArgumentException  (professor ::first-name 15)))
          )
 
-(deftest test-concept
+(deftest test-concept-validator
+         (is (= {::first-name "Pera", ::last-name nil ::start-date nil} (professor ::first-name "Pera")))
+         (is (= {::first-name nil, ::last-name "Peric" ::start-date nil} (professor ::last-name "Peric")))
+         (is (= {::first-name nil, ::last-name nil ::start-date  
+                 (. (java.util.GregorianCalendar. 2000 01 04) getTime)} 
+                (professor ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
+         (is (= {::first-name "Pera", ::last-name "Peric" 
+                 ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime)} 
+                (professor ::first-name "Pera" ::last-name "Peric" 
+                           ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime) )))
          (is (thrown? IllegalArgumentException  (professor ::first-name 15 
                      ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
          (is (thrown? IllegalArgumentException  (professor ::first-name "pera" 
-                     ::start-date (. (java.util.GregorianCalendar. 3000 01 04) getTime)))) 
-         (is (map? (professor ::first-name "pera"))))
+                     ::start-date (. (java.util.GregorianCalendar. 3000 01 04) getTime)))))
+
+(deftest test-hierarchy
+         (is (= {:parents {}, :descendants {}, :ancestors {}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta pname))))
+         (is (= {:parents {::first-name #{::pname}}, 
+                 :descendants {::pname #{::first-name}}, 
+                 :ancestors {::first-name #{::pname}}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta first-name))))
+         (is (= {:parents {::last-name #{::pname}}, 
+                 :descendants {::pname #{::last-name}}, 
+                 :ancestors {::last-name #{::pname}}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta last-name))))
+         (is (= {:parents {}, :descendants {}, :ancestors {}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta person))))
+         (is (= {:parents {::professor #{::person}}, 
+                 :descendants {::person #{::professor}}, 
+                 :ancestors {::professor #{::person}}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta professor))))
+         (is (= {:parents {::last-name #{::pname}, ::transcedental-property #{::last-name}}, 
+                 :descendants {::pname #{::last-name, ::transcedental-property}, 
+                               ::last-name #{::transcedental-property}}, 
+                 :ancestors {::last-name #{::pname} ::transcedental-property #{::pname, ::last-name}}} 
+                (:org.aloole.magicpotion.m3/hierarchy (meta transcedental-property))))
+         (is (= {:parents {::professor #{::person}, ::transcedental-being #{::professor}}, 
+                 :ancestors {::professor #{::person}, ::transcedental-being #{::professor ::person}}, 
+                 :descendants {::person #{::professor ::transcedental-being}, ::professor #{::transcedental-being}}}
+                (:org.aloole.magicpotion.m3/hierarchy (meta transcedental-being)))))
+
