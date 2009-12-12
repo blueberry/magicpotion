@@ -65,7 +65,7 @@
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
         validators (create-validators (deep :properties concept-def))
-        hierarchy (reduce #(derive %1 concept-name (:name %2)) (make-hierarchy) (deep :super concept-def))]
+        hierarchy (infer-hierarchy(make-hierarchy) concept-def)]
   (ref (fn [& property-entries]
          (with-meta
            (apply struct-map concept-struct (validate validators property-entries))

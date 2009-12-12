@@ -10,3 +10,16 @@
 (defn create-struct-deep
   [conc-def]
   (apply create-struct (map :name (deep :properties conc-def))))
+
+(defn infer-parents
+  [h thing-def]
+  (let [super (:super thing-def)
+        name (:name thing-def)
+        derive-thing (fn [h parent] (derive h name (:name parent)))] 
+  (reduce derive-thing h super)))
+
+(defn infer-hierarchy
+  [h thing-def]
+  (if-let [super (:super thing-def)]
+    (reduce infer-parents (infer-parents h thing-def) super)
+    h))
