@@ -44,8 +44,7 @@
 (deftest test-concept-validator-inheritance
          (is (thrown? IllegalArgumentException  (professor ::first-name "jo")))
          (is (= "Joe" (::first-name (professor ::first-name "Joe"))))
-         (is (thrown? IllegalArgumentException  (professor ::first-name 15)))
-         )
+         (is (thrown? IllegalArgumentException  (professor ::first-name 15))))
 
 (deftest test-concept-validator
          (is (= {::first-name "Pera", ::last-name nil ::start-date nil} (professor ::first-name "Pera")))

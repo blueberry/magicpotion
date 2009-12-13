@@ -36,15 +36,17 @@
 (defn create-validator
   ([f]
    (assert (or (fn? f) (and (sequential? f) (every? fn? f))))
-   (cond
-     (fn? f) (fn [& args]
-               (try
-                 (if (try (apply f args) (catch RuntimeException e false))
-                       false (list f))))
-     (sequential? f) (fn [& args]
-                       (if-let [errors (seq (remove #(try (apply % args) (catch RuntimeException e false)) f))]
-                         errors
-                         false))))
+   (let [try-apply (fn [func args] 
+                     (try (apply func args) 
+                       (catch RuntimeException e false)))]
+     (cond
+       (fn? f) (fn [& args]
+                 (if (try-apply f args)
+                   false (list f)))
+       (sequential? f) (fn [& args]
+                         (if-let [errors (seq (remove #(try-apply % args) f))]
+                           errors
+                           false)))))
   ([f & more]
    (create-validator (cons f more))))
 
