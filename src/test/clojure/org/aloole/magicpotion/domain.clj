@@ -9,11 +9,11 @@
           [])
 
 (property first-name
-          [#(< 2 (.length %))]
+          [(min-length? 3)]
           [pname])
 
 (property last-name
-          [#(< 3 (.length %))]
+          [(min-length? 4)]
           [pname])
 
 (property start-date
