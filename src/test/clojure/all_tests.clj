@@ -6,6 +6,7 @@
   ['org.aloole.magicpotion.test-utils
    'org.aloole.magicpotion.test-validation
    'org.aloole.magicpotion.test-core
+   'org.aloole.magicpotion.test-predicates
    'org.aloole.magicpotion.test-m3
    'org.aloole.magicpotion.domain])
 

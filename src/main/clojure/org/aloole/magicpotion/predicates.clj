@@ -1,5 +1,17 @@
 (ns org.aloole.magicpotion.predicates)
 
+(defn atom?
+  [x]
+  (isa? (type x) clojure.lang.Atom))
+
+(defn ref?
+  [x]
+  (isa? (type x) clojure.lang.Ref))
+
+(defn reference?
+  [x]
+  (isa? (type x) clojure.lang.IRef))
+
 (defn in-past?
   [date]
   (. (java.util.Date.) after date))

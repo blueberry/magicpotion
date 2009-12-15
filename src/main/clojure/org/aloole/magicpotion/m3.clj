@@ -66,14 +66,16 @@
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
         validators (create-validators (deep :properties concept-def))
-        hierarchy (infer-hierarchy (make-hierarchy) concept-def)]
-  (ref (fn [& property-entries]
-         (with-meta
-           (apply struct-map concept-struct (validate validators property-entries))
-           {:type concept-name
-            ::def concept-def
-            ::struct concept-struct
-            ::validation/validators validators}))
+        hierarchy (infer-hierarchy (make-hierarchy) concept-def)
+        instance-metadata {:type concept-name
+                           ::def concept-def
+                           ::hierarchy hierarchy
+                           ::struct concept-struct
+                           ::validation/validators validators}]
+    (ref (fn [& property-entries]
+           (with-meta
+             (apply struct-map concept-struct (validate validators property-entries))
+             instance-metadata))
        :meta {:type ::concept
               ::def concept-def
               ::hierarchy hierarchy
@@ -94,3 +96,5 @@
           ;;validators# (create-validator (deep :validators property-def))
           ;;validators# (create-validators (deep :properties concept-def#))]
       (def ~name (create-concept concept-def#)))))
+
+;;  ----------------- Predicates -------------------------------------

@@ -2,6 +2,7 @@ syntax: glob
 *~
 *.swo
 *.swp
+*.swn
 *.vimsession
 lib/*
 build/*
