@@ -41,7 +41,7 @@
   (let [property-name (:name property-def)]
     (ref (fn [conc]
            (property-name conc))
-         :meta {:type property-name
+         :meta {:type ::property
                 ::def property-def
                 ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
                 ::validation/validator (create-validator (reverse (deep :validators property-def)))})))
@@ -95,6 +95,17 @@
                          :super (map concept-def ~super))]
           ;;validators# (create-validator (deep :validators property-def))
           ;;validators# (create-validators (deep :properties concept-def#))]
-      (def ~name (create-concept concept-def#)))))
+      (do
+        (def ~(suf-symbol name "?") (is-instance name-keyword#))
+        (def ~name (create-concept concept-def#))))))
 
 ;;  ----------------- Predicates -------------------------------------
+(defn is-instance
+  [t]
+  (let [concept-name (if (keyword? t) t (::name (meta t)))]
+    (assert concept-name)
+    (fn [instance]
+      (if-let [hierarchy (::hierarchy (meta instance))]
+              (isa? (::hierarchy (meta instance)) (type instance) concept-name)
+              false))))
+

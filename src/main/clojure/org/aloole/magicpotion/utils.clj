@@ -1,5 +1,13 @@
 (ns org.aloole.magicpotion.utils)
 
+(defmacro suf-symbol 
+  [sym s] 
+  `(symbol (str (name ~sym) ~s)))
+
+(defmacro pref-symbol 
+  [s sym] 
+  `(symbol (str ~s (name ~sym))))
+
 (defmacro to-keyword 
   [sym]
   `(keyword (second (re-find #"#'(.*?)/" (str (resolve '~sym)))) (name '~sym)))
@@ -17,9 +25,10 @@
     (apply f x)
     (f x)))
 
+;;do we still need this?
 (defn meta-with [m] 
   (fn [sym] 
     (with-meta sym m)))
-
+;; do we still need this?
 (defmacro defmeta [sym m exp] 
   `(def ~(with-meta sym m) ~exp))
