@@ -36,22 +36,33 @@
 )
 ;;---------------------- Validation -----------------------------
 
-(defn create-validator
-  ([f]
+
+(def val-apply (fn [func args] 
+                 (try (apply func args) 
+                   (catch RuntimeException e false))))
+
+(def deref-apply (fn [func args] 
+                   (val-apply (map deref args))))
+
+(defn create-generic-validator
+  ([applier f]
    (assert (or (fn? f) (and (sequential? f) (every? fn? f))))
-   (let [try-apply (fn [func args] 
-                     (try (apply func args) 
-                       (catch RuntimeException e false)))]
-     (cond
-       (fn? f) (fn [& args]
-                 (if (try-apply f args)
-                   false (list f)))
-       (sequential? f) (fn [& args]
-                         (if-let [errors (seq (remove #(try-apply % args) f))]
-                           errors
-                           false)))))
-  ([f & more]
-   (create-validator (cons f more))))
+   (cond
+     (fn? f) (fn [& args]
+               (if (applier f args)
+                 false (list f)))
+     (sequential? f) (fn [& args]
+                       (if-let [errors (seq (remove #(applier % args) f))]
+                         errors
+                         false))))
+  ([applier f & more]
+   (create-generic-validator applier (cons f more))))
+
+(def create-val-validator 
+  (partial create-generic-validator val-apply))
+
+(def create-ref-validator 
+  (partial create-generic-validator deref-apply))
 
 (defn assoc-violations [validator result value-entry]
   (if-let [errors (safe-apply validator (val value-entry))]

@@ -31,13 +31,22 @@
   [v] 
   (::def (meta v)))
 
-(defn create-ref-property-def 
+(defn create-relationship-def 
   [& params]
   (with-meta
     (apply struct-map property-struct params)
-    {:type ::m3-ref-property}))
+    {:type ::m3-relationship}))
 ;;---------------------------------------------------------------------
+(defmulti create-validator type)
 
+(defmethod create-validator ::m3-property
+  [property-def]
+    (create-val-validator (reverse (deep :validators property-def))))
+
+(defmethod create-validator ::m3-relatinship
+  [property-def]
+    (create-ref-validator (reverse (deep :validators property-def))))
+;;---------------------------------------------------------------------
 (defmacro validators
   [v]
   `(:validators (property-def (var ~v))))
@@ -49,11 +58,28 @@
          :meta {:type ::property
                 ::def property-def
                 ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
-                ::validation/validator (create-validator (reverse (deep :validators property-def)))})))
+                ::validation/validator (create-validator property-def)})))
 
 (defmacro property
   [name validators super]
   `(let [property-def# (create-property-def 
+                         :name (to-keyword ~name)
+                         :validators ~validators
+                         :super (map property-def ~super))]
+     (def ~name (create-property property-def#))))
+
+(defn create-ref-property [property-def]
+  (let [property-name (:name property-def)]
+    (ref (fn [conc]
+           (property-name conc))
+         :meta {:type ::ref-property
+                ::def property-def
+                ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
+                ::validation/validator (create-validator property-def)})))
+
+(defmacro ref-property
+  [name validators super]
+  `(let [property-def# (create-ref-property-def 
                          :name (to-keyword ~name)
                          :validators ~validators
                          :super (map property-def ~super))]
@@ -63,7 +89,7 @@
 (defn create-validators
   [property-defs]
   (let [validators (zipmap (map :name property-defs) 
-                           (map #(create-validator (deep :validators %)) property-defs))]
+                           (map create-validator property-defs))] 
         (reduce #(if (val %2) (assoc %1 (key %2) (val%2)) %1) {} validators)))
 
 ;;---------------------------------------------------------------------
