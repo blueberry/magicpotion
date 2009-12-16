@@ -16,6 +16,7 @@
           [(min-length 4)]
           [pname])
 
+
 (property start-date
           [in-past?] 
           [])
@@ -36,6 +37,14 @@
 (concept transcedental-being
          [transcedental-property]
          [professor])
+
+(property knows
+          [person?]
+          [])
+
+(concept social-person
+         [knows]
+         [person])
 
 (deftest test-concept-inheritance
          (is (= {::first-name nil, ::last-name nil} (person)))
@@ -63,28 +72,32 @@
 
 (deftest test-hierarchy
          (is (= {:parents {}, :descendants {}, :ancestors {}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta pname))))
+                (::m3/hierarchy (meta pname))))
          (is (= {:parents {::first-name #{::pname}}, 
                  :descendants {::pname #{::first-name}}, 
                  :ancestors {::first-name #{::pname}}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta first-name))))
+                (::m3/hierarchy (meta first-name))))
          (is (= {:parents {::last-name #{::pname}}, 
                  :descendants {::pname #{::last-name}}, 
                  :ancestors {::last-name #{::pname}}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta last-name))))
+                (::m3/hierarchy (meta last-name))))
          (is (= {:parents {}, :descendants {}, :ancestors {}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta person))))
+                (::m3/hierarchy (meta person))))
          (is (= {:parents {::professor #{::person}}, 
                  :descendants {::person #{::professor}}, 
                  :ancestors {::professor #{::person}}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta professor))))
+                (::m3/hierarchy (meta professor))))
          (is (= {:parents {::last-name #{::pname}, ::transcedental-property #{::last-name}}, 
                  :descendants {::pname #{::last-name, ::transcedental-property}, 
                                ::last-name #{::transcedental-property}}, 
                  :ancestors {::last-name #{::pname} ::transcedental-property #{::pname, ::last-name}}} 
-                (:org.aloole.magicpotion.m3/hierarchy (meta transcedental-property))))
+                (::m3/hierarchy (meta transcedental-property))))
          (is (= {:parents {::professor #{::person}, ::transcedental-being #{::professor}}, 
                  :ancestors {::professor #{::person}, ::transcedental-being #{::professor ::person}}, 
                  :descendants {::person #{::professor ::transcedental-being}, ::professor #{::transcedental-being}}}
-                (:org.aloole.magicpotion.m3/hierarchy (meta transcedental-being)))))
+                (::m3/hierarchy (meta transcedental-being)))))
 
+(deftest test-concept-predicate
+         (is (person? (person)))
+         (is (not (social-person? (person))))
+         (is (person? (social-person))))
