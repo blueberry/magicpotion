@@ -43,7 +43,7 @@
   [property-def]
     (create-val-validator (reverse (deep :validators property-def))))
 
-(defmethod create-validator ::m3-relatinship
+(defmethod create-validator ::m3-relationship
   [property-def]
     (create-ref-validator (reverse (deep :validators property-def))))
 ;;---------------------------------------------------------------------
@@ -68,18 +68,9 @@
                          :super (map property-def ~super))]
      (def ~name (create-property property-def#))))
 
-(defn create-ref-property [property-def]
-  (let [property-name (:name property-def)]
-    (ref (fn [conc]
-           (property-name conc))
-         :meta {:type ::ref-property
-                ::def property-def
-                ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
-                ::validation/validator (create-validator property-def)})))
-
-(defmacro ref-property
+(defmacro relationship
   [name validators super]
-  `(let [property-def# (create-ref-property-def 
+  `(let [property-def# (create-relationship-def 
                          :name (to-keyword ~name)
                          :validators ~validators
                          :super (map property-def ~super))]

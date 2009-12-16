@@ -42,7 +42,7 @@
                    (catch RuntimeException e false))))
 
 (def deref-apply (fn [func args] 
-                   (val-apply (map deref args))))
+                   (val-apply func (map deref args))))
 
 (defn create-generic-validator
   ([applier f]
