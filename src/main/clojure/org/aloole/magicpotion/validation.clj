@@ -2,6 +2,8 @@
   (:use clojure.set)
   (:use org.aloole.magicpotion.utils))
 
+;;new clojure version also uses satisfies? name. Have to find an alternative
+(comment
 (defn satisfies?
   ([f x]
    (cond
@@ -30,7 +32,7 @@
     (throw (IllegalArgumentException. ))))
 
 (def verify (partial check-preconditions satisfy?))
-
+)
 ;;---------------------- Validation -----------------------------
 
 (defn create-validator

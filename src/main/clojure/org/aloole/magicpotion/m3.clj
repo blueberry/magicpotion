@@ -13,7 +13,7 @@
   [& params]
   (with-meta
     (apply struct-map concept-struct params)
-    {::type ::concept}))
+    {:type ::m3-concept}))
   
 (defn concept-def 
   [v] 
@@ -25,12 +25,17 @@
   [& params]
   (with-meta
     (apply struct-map property-struct params)
-    {::type ::property}))
+    {:type ::m3-property}))
 
 (defn property-def 
   [v] 
   (::def (meta v)))
 
+(defn create-ref-property-def 
+  [& params]
+  (with-meta
+    (apply struct-map property-struct params)
+    {:type ::m3-ref-property}))
 ;;---------------------------------------------------------------------
 
 (defmacro validators
