@@ -38,7 +38,7 @@
          [transcedental-property]
          [professor])
 
-(property knows
+(relationship knows
           [person?]
           [])
 
@@ -101,3 +101,7 @@
          (is (person? (person)))
          (is (not (social-person? (person))))
          (is (person? (social-person))))
+
+(deftest test-relationship
+         (is (social-person ::knows (atom (person))))
+         (is (thrown? IllegalArgumentException (social-person ::knows (person)))))
