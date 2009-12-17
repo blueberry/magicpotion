@@ -42,8 +42,13 @@
           [person?]
           [])
 
+(multi-relationship loves
+                    [person?]
+                    [])
+
 (concept social-person
-         [knows]
+         [knows
+          loves]
          [person])
 
 (deftest test-concept-inheritance
@@ -105,3 +110,8 @@
 (deftest test-relationship
          (is (social-person ::knows (atom (person))))
          (is (thrown? IllegalArgumentException (social-person ::knows (person)))))
+
+(deftest test-multi-relationship
+         (is (social-person ::loves #{(atom (person))}))
+         (is (thrown? IllegalArgumentException (social-person ::loves (atom (person)))))
+         (is (thrown? IllegalArgumentException (social-person ::loves #{(person)}))))

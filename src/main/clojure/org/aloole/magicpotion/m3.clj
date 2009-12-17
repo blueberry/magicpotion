@@ -22,20 +22,15 @@
 ;;---------------------------------------------------------------------
 
 (defn create-property-def 
-  [& params]
+  [relationship-type & params]
   (with-meta
     (apply struct-map property-struct params)
-    {:type ::m3-property}))
+    {:type relationship-type}))
 
 (defn property-def 
   [v] 
   (::def (meta v)))
 
-(defn create-relationship-def 
-  [& params]
-  (with-meta
-    (apply struct-map property-struct params)
-    {:type ::m3-relationship}))
 ;;---------------------------------------------------------------------
 (defmulti create-validator type)
 
@@ -46,6 +41,10 @@
 (defmethod create-validator ::m3-relationship
   [property-def]
     (create-ref-validator (reverse (deep :validators property-def))))
+
+(defmethod create-validator ::m3-multi-relationship
+  [property-def]
+    (create-multi-ref-validator (reverse (deep :validators property-def))))
 ;;---------------------------------------------------------------------
 (defmacro validators
   [v]
@@ -63,6 +62,7 @@
 (defmacro property
   [name validators super]
   `(let [property-def# (create-property-def 
+                         ::m3-property
                          :name (to-keyword ~name)
                          :validators ~validators
                          :super (map property-def ~super))]
@@ -70,7 +70,17 @@
 
 (defmacro relationship
   [name validators super]
-  `(let [property-def# (create-relationship-def 
+  `(let [property-def# (create-property-def
+                         ::m3-relationship
+                         :name (to-keyword ~name)
+                         :validators ~validators
+                         :super (map property-def ~super))]
+     (def ~name (create-property property-def#))))
+
+(defmacro multi-relationship
+  [name validators super]
+  `(let [property-def# (create-property-def
+                         ::m3-multi-relationship
                          :name (to-keyword ~name)
                          :validators ~validators
                          :super (map property-def ~super))]

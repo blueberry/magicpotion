@@ -44,6 +44,9 @@
 (def deref-apply (fn [func args] 
                    (val-apply func (map deref args))))
 
+(def every-deref-apply (fn [func args] 
+                         (every? #(deref-apply func %) args)))
+
 (defn create-generic-validator
   ([applier f]
    (assert (or (fn? f) (and (sequential? f) (every? fn? f))))
@@ -63,6 +66,9 @@
 
 (def create-ref-validator 
   (partial create-generic-validator deref-apply))
+
+(def create-multi-ref-validator 
+  (partial create-generic-validator every-deref-apply))
 
 (defn assoc-violations [validator result value-entry]
   (if-let [errors (safe-apply validator (val value-entry))]
