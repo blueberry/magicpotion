@@ -39,17 +39,17 @@
          [transcedental-property]
          [professor])
 
-(relationship knows
+(property knows
           [person?]
           [])
 
-(multi-relationship loves
-                    [person?]
-                    [])
+(property loves
+          [person?]
+          [])
 
 (concept social-person
-         [knows
-          loves]
+         [(by-ref knows :1)
+          (by-ref loves :*)]
          [person])
 
 (deftest test-concept-inheritance

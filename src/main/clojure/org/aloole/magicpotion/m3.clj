@@ -1,5 +1,6 @@
 (ns org.aloole.magicpotion.m3
   (:use org.aloole.magicpotion.utils)
+  (:use org.aloole.magicpotion.predicates)
   (:use [org.aloole.magicpotion.validation :as validation])
   (:use org.aloole.magicpotion.core))
 
@@ -22,27 +23,38 @@
 ;;---------------------------------------------------------------------
 
 (defn create-property-def 
-  [relationship-type & params]
+  [& params]
   (with-meta
     (apply struct-map property-struct params)
-    {:type relationship-type}))
+    {:type ::m3-property}))
 
 (defn property-def 
-  [v] 
-  (::def (meta v)))
+  [prop]
+  (if (isa? (type prop) ::property)
+    (let [metadata (meta prop)]
+      (with-meta (::def metadata)
+                 {:link-type (:link-type metadata)
+                  :cardinality (:cardinality metadata)}))
+    prop))
 
 ;;---------------------------------------------------------------------
-(defmulti create-validator type)
+(defmulti create-validator (fn [x] 
+                             (let [metadata (meta x)] 
+                               [(:link-type metadata) (:cardinality metadata)])))
 
-(defmethod create-validator ::m3-property
+(defmethod create-validator [nil nil]
   [property-def]
     (create-val-validator (reverse (deep :validators property-def))))
 
-(defmethod create-validator ::m3-relationship
+(defmethod create-validator [:by-value :1]
+  [property-def]
+    (create-val-validator (reverse (deep :validators property-def))))
+
+(defmethod create-validator [:by-reference :1]
   [property-def]
     (create-ref-validator (reverse (deep :validators property-def))))
 
-(defmethod create-validator ::m3-multi-relationship
+(defmethod create-validator [:by-reference :*]
   [property-def]
     (create-multi-ref-validator (reverse (deep :validators property-def))))
 ;;---------------------------------------------------------------------

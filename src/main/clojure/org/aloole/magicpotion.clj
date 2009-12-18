@@ -4,28 +4,17 @@
   (:use org.aloole.magicpotion.core)
   (:use [org.aloole.magicpotion.m3 :as m3]))
   
+(defn by-ref [prop cardinality]
+  (with-meta (property-def prop) {:link-type :by-reference,
+                   :cardinality cardinality}))
+
+(defn by-val [prop cardinality]
+  (with-meta (property-def prop) {:link-type :by-value,
+                   :cardinality cardinality}))
+
 (defmacro property
   [name validators super]
   `(let [property-def# (create-property-def 
-                         ::m3/m3-property
-                         :name (to-keyword ~name)
-                         :validators ~validators
-                         :super (map property-def ~super))]
-     (def ~name (create-property property-def#))))
-
-(defmacro relationship
-  [name validators super]
-  `(let [property-def# (create-property-def
-                         ::m3/m3-relationship
-                         :name (to-keyword ~name)
-                         :validators ~validators
-                         :super (map property-def ~super))]
-     (def ~name (create-property property-def#))))
-
-(defmacro multi-relationship
-  [name validators super]
-  `(let [property-def# (create-property-def
-                         ::m3/m3-multi-relationship
                          :name (to-keyword ~name)
                          :validators ~validators
                          :super (map property-def ~super))]
