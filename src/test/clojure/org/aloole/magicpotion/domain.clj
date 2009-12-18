@@ -48,8 +48,8 @@
           [])
 
 (concept social-person
-         [(by-ref knows :1)
-          (by-ref loves :*)]
+         [(ref> knows :1)
+          (ref> loves :*)]
          [person])
 
 (deftest test-concept-inheritance
