@@ -4,17 +4,23 @@
   (:use org.aloole.magicpotion.core)
   (:use [org.aloole.magicpotion.m3 :as m3]))
   
-(defn ref> [prop cardinality]
+(defn ref> 
+  [prop cardinality]
   {:pre [(property? prop) (contains? #{:1 :*} cardinality)]
    :post [%]}
-  (with-meta (property-def prop) 
-             {:link-type :by-reference, :cardinality cardinality}))
+  (vary-meta (property-def prop) 
+             assoc 
+             :link-type :by-reference 
+             :cardinality cardinality))
 
-(defn val> [prop cardinality]
+(defn val> 
+  [prop cardinality]
   {:pre [(property? prop) (contains? #{:1 :*} cardinality)]
    :post [%]}
   (with-meta (property-def prop) 
-             {:link-type :by-value, :cardinality cardinality}))
+             assoc
+             :link-type :by-value 
+             :cardinality cardinality))
 
 (defmacro property
   [name validators super]

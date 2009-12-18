@@ -28,15 +28,18 @@
     (apply struct-map property-struct params)
     {:type ::m3-property}))
 
-(defn property-def 
-  [prop]
-  (if (isa? (type prop) ::property)
-    (let [metadata (meta prop)]
-      (with-meta (::def metadata)
-                 {:link-type (:link-type metadata)
-                  :cardinality (:cardinality metadata)}))
-    prop))
+(defn m3-property? [x]
+  (isa? (type x) ::m3-property))
 
+(defn property? [x]
+  (isa? (type x) ::property))
+
+(defn property-def
+  [prop]
+  {:post [(m3-property? %)]}
+  (if (property? prop)
+    (::def (meta prop))
+    prop))
 ;;---------------------------------------------------------------------
 (defmulti create-validator (fn [x] 
                              (let [metadata (meta x)] 
@@ -71,8 +74,6 @@
                 ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
                 ::validation/validator (create-validator property-def)})))
 
-(defn property? [x]
-  (isa? (type x) ::property))
 ;;--------------------------------------------------------------------------------------
 
 (defn create-validators
