@@ -71,6 +71,8 @@
                 ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
                 ::validation/validator (create-validator property-def)})))
 
+(defn property? [x]
+  (isa? (type x) ::property))
 ;;--------------------------------------------------------------------------------------
 
 (defn create-validators
@@ -100,6 +102,9 @@
               ::name concept-name
               ::validation/validators validators})))
 
+
+(defn concept? [x]
+  (isa? (type x) ::concept))
 ;;  ----------------- Predicates -------------------------------------
 (defn is-instance
   [t]
