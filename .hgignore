@@ -13,4 +13,6 @@ dist/*
 target/*
 classes/*
 .settings
-
+.classpath
+.project
+*.iml

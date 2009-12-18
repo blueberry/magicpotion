@@ -53,10 +53,10 @@
 		</plugins>
 	</build>
 	<repositories>
-	  <repository> 
-      <id>clojure-snapshots</id> 
-      <url>http://build.clojure.org/snapshots</url>
-    </repository> 
+		<repository>
+			<id>clojure-snapshots</id>
+			<url>http://build.clojure.org/snapshots</url>
+		</repository>
 		<repository>
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>

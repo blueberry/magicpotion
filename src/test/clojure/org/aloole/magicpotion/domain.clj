@@ -2,7 +2,8 @@
   (:use [clojure.test])
   (:use [org.aloole.magicpotion.predicates])
   (:use [org.aloole.magicpotion.core :as core])
-  (:use [org.aloole.magicpotion.m3 :as m3]))
+  (:use [org.aloole.magicpotion.m3 :as m3])
+  (:use [org.aloole.magicpotion :as mp]))
 
 (property pname
           [string?] 
