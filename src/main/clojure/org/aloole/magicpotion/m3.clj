@@ -53,12 +53,21 @@
 
 (defmethod create-validator [:by-reference :1]
   [property-def]
-  (if-let [qualified-validators (seq (:validators (meta property-def)))]
-    (create-ref-validator (concat qualified-validators (reverse (deep :validators property-def))))))
+    (create-ref-validator (concat (reverse (deep :validators property-def)) 
+                                  (seq (:validators (meta property-def))))))
 
 (defmethod create-validator [:by-reference :*]
   [property-def]
-    (create-multi-ref-validator (reverse (deep :validators property-def))))
+  (let [unqualified-validator (create-multi-ref-validator 
+                                (concat (reverse (deep :validators property-def))
+                                        (seq (:validators (meta property-def)))))]
+    (if-let [qualified-validators (seq (:set-validators (meta property-def)))]
+      (let  [qualified-validator (create-val-validator qualified-validators)]
+        (fn [& args]
+          (concat (apply qualified-validator args) (apply unqualified-validator args))))
+      unqualified-validator)))
+
+
 ;;---------------------------------------------------------------------
 (defmacro validators
   [v]
