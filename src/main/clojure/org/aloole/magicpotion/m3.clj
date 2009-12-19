@@ -4,11 +4,10 @@
   (:use [org.aloole.magicpotion.validation :as validation])
   (:use org.aloole.magicpotion.core))
 
+;;-------------------- Bootstrap -------------------------------------
 (def concept-struct (create-struct :name :properties :super))
 
 (def property-struct (create-struct :name :validators :super))
-
-;;---------------------------------------------------------------------
 
 (defn create-concept-def 
   [& params]
@@ -19,8 +18,6 @@
 (defn concept-def 
   [v] 
   (::def (meta v)))
-
-;;---------------------------------------------------------------------
 
 (defn create-property-def 
   [& params]
@@ -40,6 +37,7 @@
   (if (property? prop)
     (::def (meta prop))
     prop))
+
 ;;---------------------------------------------------------------------
 (defmulti create-validator (fn [x] 
                              (let [metadata (meta x)] 
@@ -55,7 +53,8 @@
 
 (defmethod create-validator [:by-reference :1]
   [property-def]
-    (create-ref-validator (reverse (deep :validators property-def))))
+  (if-let [qualified-validators (seq (:validators (meta property-def)))]
+    (create-ref-validator (concat qualified-validators (reverse (deep :validators property-def))))))
 
 (defmethod create-validator [:by-reference :*]
   [property-def]
@@ -65,7 +64,9 @@
   [v]
   `(:validators (property-def (var ~v))))
 
-(defn create-property [property-def]
+(defn create-property 
+  [property-def]
+  {:pre [(m3-property? property-def)]}
   (let [property-name (:name property-def)]
     (ref (fn [conc]
            (property-name conc))
