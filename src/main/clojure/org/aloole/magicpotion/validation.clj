@@ -44,8 +44,9 @@
 (def deref-apply (fn [func args] 
                    (val-apply func (map deref args))))
 
+;; Here is the real mess. Have to make it cleaner once it works. Really need to rethink the whole -apply thing.
 (def every-deref-apply (fn [func args] 
-                         (every? #(deref-apply func %) args)))
+                         (every? #(func (deref %)) (first args))))
 
 (defn create-generic-validator
   ([applier f]
@@ -53,11 +54,11 @@
    (cond
      (fn? f) (fn [& args]
                (if (applier f args)
-                 false (list f)))
+                 nil (list f)))
      (sequential? f) (fn [& args]
                        (if-let [errors (seq (remove #(applier % args) f))]
                          errors
-                         false))))
+                         nil))))
   ([applier f & more]
    (create-generic-validator applier (cons f more))))
 
@@ -82,11 +83,11 @@
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
   [validators values]
-  (let [errors (reduce #(if-let [validator (validators (key %2))] 
-                             (assoc-violations validator %1 %2) 
-                             %1)
-                          {} values)] 
-    (if (seq errors) errors false)))
+  (if-let [errors (seq (reduce #(if-let [validator (validators (key %2))] 
+                                  (assoc-violations validator %1 %2) 
+                                  %1)
+                               {} values))] 
+    errors nil))
 
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.Sequential]
@@ -96,29 +97,29 @@
 (defmethod violations
   [clojure.lang.IFn clojure.lang.IPersistentMap]
   [validator values]
-  (let [errors (reduce #(assoc-violations validator %1 %2) {} values)]
-    (if (seq errors) errors false)))
+  (if-let [errors (seq (reduce #(assoc-violations validator %1 %2) {} values))]
+    errors nil))
 
 (defmethod violations
   [clojure.lang.IFn clojure.lang.Sequential]
   [validator value]
   (if-let [errors (apply validator value)]
     {value errors}
-    false))
+    nil))
 
 (defmethod violations
   [clojure.lang.IFn Object]
   [validator value]
   (if-let [res-entry (validator value)] 
     {value res-entry}
-    false))
+    nil))
 
 (defmethod violations
   [clojure.lang.IFn nil]
   [validator value]
   (if-let [res-entry (validator value)] 
     {value res-entry}
-    false))
+    nil))
 
 (prefer-method violations
                [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
@@ -152,7 +153,7 @@
    (validate (::validators (meta x)) x))
   ([validator x]
    (if validator
-     (if-let [errors (violations validator x)]
+     (if-let [errors (seq (violations validator x))]
        (throw (IllegalArgumentException. (str errors)))
        x)
      x)))
