@@ -37,16 +37,19 @@
 ;;---------------------- Validation -----------------------------
 
 
-(def val-apply (fn [func args] 
-                 (try (apply func args) 
-                   (catch RuntimeException e false))))
+(defn val-apply [func args] 
+  (try (apply func args) 
+    (catch RuntimeException e false)))
 
-(def deref-apply (fn [func args] 
-                   (val-apply func (map deref args))))
+(defn deref-apply 
+  [func args] 
+  (val-apply func (map deref args)))
 
 ;; Here is the real mess. Have to make it cleaner once it works. Really need to rethink the whole -apply thing.
-(def every-deref-apply (fn [func args] 
-                         (every? #(func (deref %)) (first args))))
+(defn every-deref-apply
+  [func args]
+  {:pre [(set? (first args))]}
+  (every? #(func (deref %)) (first args)))
 
 (defn create-generic-validator
   ([applier f]
@@ -56,7 +59,8 @@
                (if (applier f args)
                  nil (list f)))
      (sequential? f) (fn [& args]
-                       (if-let [errors (seq (remove #(applier % args) f))]
+                       (if-let 
+                         [errors (seq (remove #(applier % args) f))]
                          errors
                          nil))))
   ([applier f & more]
@@ -83,11 +87,11 @@
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
   [validators values]
-  (if-let [errors (seq (reduce #(if-let [validator (validators (key %2))] 
+  (let [errors (reduce #(if-let [validator (validators (key %2))] 
                                   (assoc-violations validator %1 %2) 
                                   %1)
-                               {} values))] 
-    errors nil))
+                               {} values)] 
+    (if (seq errors) errors nil)))
 
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.Sequential]
@@ -97,8 +101,8 @@
 (defmethod violations
   [clojure.lang.IFn clojure.lang.IPersistentMap]
   [validator values]
-  (if-let [errors (seq (reduce #(assoc-violations validator %1 %2) {} values))]
-    errors nil))
+  (let [errors (reduce #(assoc-violations validator %1 %2) {} values)]
+    (if (seq errors) errors nil)))
 
 (defmethod violations
   [clojure.lang.IFn clojure.lang.Sequential]

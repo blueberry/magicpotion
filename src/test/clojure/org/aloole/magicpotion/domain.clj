@@ -48,8 +48,8 @@
           [])
 
 (concept social-person
-         [(ref> knows :1)
-          (ref> loves :*)]
+         [(ref> knows [])
+          (ref*> loves [] [])]
          [person])
 
 (deftest test-concept-inheritance
@@ -108,11 +108,11 @@
          (is (not (social-person? (person))))
          (is (person? (social-person))))
 
-(deftest test-relationship
+(deftest test-rel>
          (is (social-person ::knows (atom (person))))
          (is (thrown? IllegalArgumentException (social-person ::knows (person)))))
 
-(deftest test-multi-relationship
+(deftest test-rel*>
          (is (social-person ::loves #{(atom (person))}))
-         (is (thrown? IllegalArgumentException (social-person ::loves (atom (person)))))
-         (is (thrown? IllegalArgumentException (social-person ::loves #{(person)}))))
+         (is (thrown? Exception (social-person ::loves (atom (person)))))
+         (is (thrown? Exception (social-person ::loves #{(person)}))))

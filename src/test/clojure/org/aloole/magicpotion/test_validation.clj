@@ -16,14 +16,14 @@
 (deftest test-validator
          (let [validator (create-val-validator string?)]
            ;;(is (thrown? IllegalArgumentException (validator)))
-           (is (false? (validator "some string")))
+           (is (not (validator "some string")))
            (is (= (list string?) (validator :a)))
            (is (= (list string?) (validator nil))))
          (let [validator (create-val-validator #(string? %))]
-           (is (false? (validator "some string"))))
+           (is (not (validator "some string"))))
          (let [not-string? #(not (string? %))
                validator (create-val-validator not-string? keyword?)]
-           (is (false? (validator :a)))
+           (is (not (validator :a)))
            (is (= (list not-string? keyword?) (validator "some string")))))
         
 (deftest test-violations
@@ -31,8 +31,8 @@
          (is (thrown? IllegalArgumentException (violations nil {:p1 "a"})))
          (is (= {:p1 (list string?)} 
                 (violations {:p1 (create-val-validator string?)} {:p1 nil})))
-         (is (false? (violations (create-val-validator string?) "a")))
-         (is (false? (violations (create-val-validator string? #(not (nil? %))) "a")))
+         (is (not (violations (create-val-validator string?) "a")))
+         (is (not (violations (create-val-validator string? #(not (nil? %))) "a")))
          (is (= {"a" (list keyword?)} 
                 (violations (create-val-validator keyword?) "a")))
          (is (= {nil (list keyword? string?)} 
@@ -46,7 +46,7 @@
                   (violations validators {:p1 :a :p2 :a})))
            (is (= {:p2 (list keyword?)} 
                   (violations validators {:p1 "a" :p2 "a"})))
-           (is (false? (violations validators {:p1 "a" :p2 :a})))))
+           (is (not (violations validators {:p1 "a" :p2 :a})))))
 
 (deftest test-valid?
          (is (valid? nil))
