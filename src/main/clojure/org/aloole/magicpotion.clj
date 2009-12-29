@@ -47,12 +47,17 @@
              :set-validators set-validators))
 
 (defmacro property
-  [name validators super]
-  `(let [property-def# (create-property-def 
-                         (to-keyword ~name)
-                         ~validators
-                         (map property-def ~super))]
-     (def ~name (create-property property-def#))))
+  [name & params]
+  {:pre [(every? (partial contains? #{:restrictions :super}) (filter keyword? params))]}
+  (let [pos (take-while (comp not keyword?) params)
+        kw-map (apply hash-map (drop-while (comp not keyword?) params))
+        restrictions (if-let [r (first pos)] r (:restrictions kw-map))
+        super (if-let [s (second pos)] s (:super kw-map))]
+    `(let [property-def# (create-property-def 
+                          (to-keyword ~name)
+                          ~restrictions
+                          (map property-def ~super))]
+     (def ~name (create-property property-def#)))))
 
 (defmacro concept
   ([name]
