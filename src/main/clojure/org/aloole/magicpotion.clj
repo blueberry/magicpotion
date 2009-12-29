@@ -60,11 +60,12 @@
      (def ~name (create-property property-def#)))))
 
 (defmacro concept
-  ([name]
-   (concept name nil))
-  ([name properties]
-   (concept name properties nil))
-  ([name properties super]
+  ([name & params]
+  {:pre [(every? (partial contains? #{:properties :super}) (filter keyword? params))]}
+  (let [pos (take-while (comp not keyword?) params)
+        kw-map (apply hash-map (drop-while (comp not keyword?) params))
+        properties (if-let [p (first pos)] p (:properties kw-map))
+        super (if-let [s (second pos)] s (:super kw-map))]
    `(let [name-keyword# (to-keyword ~name)
           concept-def# (create-concept-def
                          (to-keyword ~name)
@@ -74,5 +75,5 @@
           ;;validators# (create-validators (deep :properties concept-def#))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
-        (def ~name (create-concept concept-def#))))))
+        (def ~name (create-concept concept-def#)))))))
         
