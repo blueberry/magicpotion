@@ -17,7 +17,6 @@
           [(min-length 4)]
           [pname])
 
-
 (property start-date
           [in-past?] 
           [])
@@ -50,6 +49,11 @@
 (concept social-person
          [(ref> knows [])
           (ref*> loves [] [])]
+         [person])
+
+(concept social-person-by-val
+         [(val> knows [])
+          (val*> loves [] [])]
          [person])
 
 (deftest test-concept-inheritance
@@ -116,3 +120,12 @@
          (is (social-person ::loves #{(atom (person))}))
          (is (thrown? Exception (social-person ::loves (atom (person)))))
          (is (thrown? Exception (social-person ::loves #{(person)}))))
+
+(deftest test-val>
+         (is (social-person-by-val ::knows (person)))
+         (is (thrown? IllegalArgumentException (social-person-by-val ::knows (atom person)))))
+
+(deftest test-val*>
+         (is (social-person-by-val ::loves #{(person)}))
+         (is (thrown? Exception (social-person-by-val ::loves (person))))
+         (is (thrown? Exception (social-person-by-val ::loves #{(atom (person))}))))

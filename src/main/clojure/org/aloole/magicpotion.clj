@@ -26,13 +26,25 @@
              :set-validators set-validators))
 
 (defn val> 
-  [prop cardinality]
-  {:pre [(property? prop) (contains? #{:1 :*} cardinality)]
+  [prop validators]
+  {:pre [(property? prop)]
    :post [%]}
-  (with-meta (property-def prop) 
+  (vary-meta (property-def prop) 
              assoc
              :link-type :by-value 
-             :cardinality cardinality))
+             :cardinality :1
+             :validators validators))
+
+(defn val*> 
+  [prop validators set-validators]
+  {:pre [(property? prop)]
+   :post [%]}
+  (vary-meta (property-def prop) 
+             assoc 
+             :link-type :by-value 
+             :cardinality :*
+             :validators validators
+             :set-validators set-validators))
 
 (defmacro property
   [name validators super]

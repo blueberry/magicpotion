@@ -41,6 +41,11 @@
   (try (apply func args) 
     (catch RuntimeException e false)))
 
+(defn every-apply
+  [func args]
+  {:pre [(set? (first args))]}
+  (every? func (first args))) ;;should consider try/catch!
+
 (defn deref-apply 
   [func args] 
   (val-apply func (map deref args)))
@@ -68,6 +73,9 @@
 
 (def create-val-validator 
   (partial create-generic-validator val-apply))
+
+(def create-multi-val-validator 
+  (partial create-generic-validator every-apply))
 
 (def create-ref-validator 
   (partial create-generic-validator deref-apply))
