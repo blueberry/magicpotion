@@ -5,17 +5,23 @@
   (:use [org.aloole.magicpotion.m3 :as m3]))
   
 (defn ref> 
-  [prop validators]
+  ([prop]
+   (ref> prop nil))
+  ([prop validators]
   {:pre [(property? prop)]
    :post [%]}
   (vary-meta (property-def prop) 
              assoc 
              :link-type :by-reference 
              :cardinality :1
-             :validators validators))
+             :validators validators)))
 
 (defn ref*> 
-  [prop validators set-validators]
+  ([prop ]
+   (ref*> prop nil))
+  ([prop validators]
+   (ref*> prop validators nil))
+  ([prop validators set-validators]
   {:pre [(property? prop)]
    :post [%]}
   (vary-meta (property-def prop) 
@@ -23,20 +29,26 @@
              :link-type :by-reference 
              :cardinality :*
              :validators validators
-             :set-validators set-validators))
+             :set-validators set-validators)))
 
 (defn val> 
-  [prop validators]
+  ([prop]
+   (val> prop nil))
+  ([prop validators]
   {:pre [(property? prop)]
    :post [%]}
   (vary-meta (property-def prop) 
              assoc
              :link-type :by-value 
              :cardinality :1
-             :validators validators))
+             :validators validators)))
 
 (defn val*> 
-  [prop validators set-validators]
+  ([prop ]
+   (val*> prop nil))
+  ([prop validators]
+   (val*> prop validators nil))
+  ([prop validators set-validators]
   {:pre [(property? prop)]
    :post [%]}
   (vary-meta (property-def prop) 
@@ -44,7 +56,7 @@
              :link-type :by-value 
              :cardinality :*
              :validators validators
-             :set-validators set-validators))
+             :set-validators set-validators)))
 
 (defmacro property
   [name & params]
@@ -71,9 +83,6 @@
                          (to-keyword ~name)
                          (map property-def ~properties) 
                          (map concept-def ~super))]
-          ;;validators# (create-validator (deep :validators property-def))
-          ;;validators# (create-validators (deep :properties concept-def#))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
         (def ~name (create-concept concept-def#)))))))
-        
