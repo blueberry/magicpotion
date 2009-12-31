@@ -9,7 +9,7 @@
 
 (defn create-struct-deep
   [conc-def]
-  (apply create-struct (map :name (deep :properties conc-def))))
+  (apply create-struct (map (comp :name :property) (deep :roles conc-def))))
 
 (defn infer-parents
   [h thing-def]

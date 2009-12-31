@@ -1,4 +1,5 @@
 (ns org.aloole.magicpotion
+  (:use clojure.contrib.generic.functor)
   (:use org.aloole.magicpotion.utils)
   (:use [org.aloole.magicpotion.validation :as validation])
   (:use org.aloole.magicpotion.core)
@@ -59,17 +60,20 @@
                           (map property-def ~super))]
      (def ~name (create-property property-def#)))))
 
+(defn sanitize-roles [raw-roles]
+  (map #(if (property? %) (val> %) %) raw-roles))
+
 (defmacro concept
   ([name & params]
-  {:pre [(every? (partial contains? #{:properties :super}) (filter keyword? params))]}
+  {:pre [(every? (partial contains? #{:roles :super}) (filter keyword? params))]}
   (let [pos (take-while (comp not keyword?) params)
         kw-map (apply hash-map (drop-while (comp not keyword?) params))
-        properties (if-let [p (first pos)] p (:properties kw-map))
+        roles (if-let [r (first pos)] r (:roles kw-map))
         super (if-let [s (second pos)] s (:super kw-map))]
    `(let [name-keyword# (to-keyword ~name)
           concept-def# (create-concept-def
                          (to-keyword ~name)
-                         (map property-def ~properties) 
+                         (sanitize-roles ~roles)
                          (map concept-def ~super))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
