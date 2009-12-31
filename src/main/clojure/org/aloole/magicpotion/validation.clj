@@ -53,7 +53,7 @@
 ;; Here is the real mess. Have to make it cleaner once it works. Really need to rethink the whole -apply thing.
 (defn every-deref-apply
   [func args]
-  {:pre [(set? (first args))]}
+  ;;{:pre [(set? (first args))]}
   (every? #(func (deref %)) (first args)))
 
 (defn create-generic-validator
