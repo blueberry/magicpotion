@@ -4,14 +4,14 @@
 
 (deftest test-create-val-validator
          (is (fn? (create-val-validator string?)))
-         (is (thrown? Exception (create-val-validator nil)))
-         (is (thrown? Exception (create-val-validator "a")))
-         (is (thrown? Exception (create-val-validator :a)))
+         (is (thrown? AssertionError (create-val-validator nil)))
+         (is (thrown? AssertionError (create-val-validator "a")))
+         (is (thrown? AssertionError (create-val-validator :a)))
          ;;(is (thrown? Exception (create-val-validator [])))
          (is (fn? (create-val-validator [#(and (not (string? %)) (not (keyword? %)))])))
          (is (fn? (create-val-validator [string?])))
          (is (fn? (create-val-validator [string? fn?])))
-         (is (thrown? Exception (create-val-validator [string? :a]))))
+         (is (thrown? AssertionError (create-val-validator [string? :a]))))
 
 (deftest test-validator
          (let [validator (create-val-validator string?)]

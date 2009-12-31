@@ -43,7 +43,7 @@
 
 (defn every-apply
   [func args]
-  {:pre [(set? (first args))]}
+  ;;{:pre [(set? (first args))]}
   (every? func (first args))) ;;should consider try/catch!
 
 (defn deref-apply 
