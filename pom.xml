@@ -7,6 +7,11 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Magic Potion</name>
 	<url>http://aloole.org/magicpotion</url>
+	<scm>
+	  <connection>
+	    scm:hg:.
+	  </connection>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.clojure</groupId>
