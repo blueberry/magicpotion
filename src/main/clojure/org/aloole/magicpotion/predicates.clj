@@ -35,3 +35,8 @@
   (fn [#^String s]
     (let [length (.length s)]
     (and  (<= low length) (>= high length)))))
+
+(defn between
+  [low high]
+  (fn [n]
+    (and  (<= low n) (>= high n))))

@@ -1,4 +1,5 @@
-(ns org.aloole.magicpotion.core)
+(ns org.aloole.magicpotion.core
+  (:use clojure.set))
 
 (defn deep
   "Applies f to all the ancestors of the concept conc. 
@@ -9,7 +10,7 @@
 
 (defn create-struct-deep
   [conc-def]
-  (apply create-struct (map (comp :name :property) (deep :roles conc-def))))
+  (apply create-struct (set (map (comp :name :property) (deep :roles conc-def)))));;set added to solve the problem of inherited and redefined properties. This should be done more systematically later!
 
 (defn infer-parents
   [h thing-def]

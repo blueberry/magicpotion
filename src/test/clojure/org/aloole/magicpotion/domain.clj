@@ -56,6 +56,14 @@
           (val*> loves [] [])]
          [person])
 
+(concept party
+         [pname])
+
+(concept company
+         [(val> pname)]
+         [party])
+
+
 (deftest test-concept-inheritance
          (is (= {::first-name nil, ::last-name nil} (person)))
          (is (= {::first-name nil, ::last-name nil ::start-date nil} (professor))))
@@ -123,7 +131,8 @@
 
 (deftest test-val>
          (is (social-person-by-val ::knows (person)))
-         (is (thrown? IllegalArgumentException (social-person-by-val ::knows (atom person)))))
+         (is (thrown? IllegalArgumentException (social-person-by-val ::knows (atom person))))
+         (is (company? (company ::pname "A name"))))
 
 (deftest test-val*>
          (is (social-person-by-val ::loves #{(person)}))
