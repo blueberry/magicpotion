@@ -72,7 +72,7 @@
         super (if-let [s (second pos)] s (:super kw-map))]
    `(let [name-keyword# (to-keyword ~name)
           concept-def# (create-concept-def
-                         (to-keyword ~name)
+                         name-keyword#
                          (sanitize-roles ~roles)
                          (map concept-def ~super))]
       (do
