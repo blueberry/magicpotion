@@ -16,3 +16,6 @@ classes/*
 .classpath
 .project
 *.iml
+
+syntax: glob
+*.swm
