@@ -138,3 +138,7 @@
          (is (social-person-by-val ::loves #{(person)}))
          (is (thrown? Exception (social-person-by-val ::loves (person))))
          (is (thrown? Exception (social-person-by-val ::loves #{(atom (person))}))))
+
+(deftest test-property
+				 (is (= ::knows (knows)))
+				 (is (= "some random data" (knows {::knows "some random data"}))))

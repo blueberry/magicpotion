@@ -103,9 +103,10 @@
 (defn create-property 
   [property-def]
   {:pre [(m3-property? property-def)]}
-  (let [property-name (:name property-def)]
-    (ref (fn [individual]
-           (property-name individual))
+  (let [property-name (:name property-def)
+				property-function (fn ([individual] (property-name individual))
+															([] property-name))]
+    (ref property-function
          :meta {:type ::property
                 ::def property-def
                 ::hierarchy (infer-hierarchy (make-hierarchy) property-def)
