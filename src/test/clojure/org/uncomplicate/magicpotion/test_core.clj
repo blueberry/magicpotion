@@ -1,5 +1,5 @@
-(ns org.aloole.magicpotion.test-core
-  (:use org.aloole.magicpotion.core)
+(ns org.uncomplicate.magicpotion.test-core
+  (:use org.uncomplicate.magicpotion.core)
   (:use clojure.test))
 
 (deftest test-create-struct-deep

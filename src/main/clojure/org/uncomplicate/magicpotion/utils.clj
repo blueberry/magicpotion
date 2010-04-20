@@ -1,4 +1,4 @@
-(ns org.aloole.magicpotion.utils
+(ns org.uncomplicate.magicpotion.utils
   (:use clojure.contrib.macros)) ;;this should cause errors once let-kw is there.
 
 (defmacro suf-symbol 

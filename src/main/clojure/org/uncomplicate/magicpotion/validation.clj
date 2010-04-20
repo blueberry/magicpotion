@@ -1,6 +1,6 @@
-(ns org.aloole.magicpotion.validation
+(ns org.uncomplicate.magicpotion.validation
   (:use clojure.set)
-  (:use org.aloole.magicpotion.utils))
+  (:use org.uncomplicate.magicpotion.utils))
 
 
 ;;new clojure version also uses satisfies? name. Have to find an alternative

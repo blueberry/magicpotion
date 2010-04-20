@@ -1,4 +1,4 @@
-(ns org.aloole.magicpotion.core
+(ns org.uncomplicate.magicpotion.core
   (:use clojure.set))
 
 (defn deep

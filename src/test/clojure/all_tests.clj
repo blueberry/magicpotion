@@ -3,12 +3,12 @@
 (set! *warn-on-reflection* true)
 
 (def spaces
-  ['org.aloole.magicpotion.test-utils
-   'org.aloole.magicpotion.test-validation
-   'org.aloole.magicpotion.test-core
-   'org.aloole.magicpotion.test-predicates
-   'org.aloole.magicpotion.test-m3
-   'org.aloole.magicpotion.domain])
+  ['org.uncomplicate.magicpotion.test-utils
+   'org.uncomplicate.magicpotion.test-validation
+   'org.uncomplicate.magicpotion.test-core
+   'org.uncomplicate.magicpotion.test-predicates
+   'org.uncomplicate.magicpotion.test-m3
+   'org.uncomplicate.magicpotion.domain])
 
 (println "Loading code ...")
 (time (apply use spaces))

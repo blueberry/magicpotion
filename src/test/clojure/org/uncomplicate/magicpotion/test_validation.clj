@@ -1,5 +1,5 @@
-(ns org.aloole.magicpotion.test-validation
-  (:use [org.aloole.magicpotion.validation :as mp])
+(ns org.uncomplicate.magicpotion.test-validation
+  (:use [org.uncomplicate.magicpotion.validation :as mp])
   (:use clojure.test))
 
 (deftest test-create-val-validator

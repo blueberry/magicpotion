@@ -1,4 +1,4 @@
-(ns org.aloole.magicpotion.predicates)
+(ns org.uncomplicate.magicpotion.predicates)
 
 (defn atom?
   [x]

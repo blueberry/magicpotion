@@ -1,8 +1,8 @@
-(ns org.aloole.magicpotion.m3
-  (:use org.aloole.magicpotion.utils)
-  (:use org.aloole.magicpotion.predicates)
-  (:use [org.aloole.magicpotion.validation :as validation])
-  (:use org.aloole.magicpotion.core))
+(ns org.uncomplicate.magicpotion.m3
+  (:use org.uncomplicate.magicpotion.utils)
+  (:use org.uncomplicate.magicpotion.predicates)
+  (:use [org.uncomplicate.magicpotion.validation :as validation])
+  (:use org.uncomplicate.magicpotion.core))
 
 ;;-------------------- Bootstrap -------------------------------------
 (def concept-struct (create-struct :name :roles :super))

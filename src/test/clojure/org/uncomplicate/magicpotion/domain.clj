@@ -1,9 +1,9 @@
-(ns org.aloole.magicpotion.domain
+(ns org.uncomplicate.magicpotion.domain
   (:use [clojure.test])
-  (:use [org.aloole.magicpotion.predicates])
-  (:use [org.aloole.magicpotion.core :as core])
-  (:use [org.aloole.magicpotion.m3 :as m3])
-  (:use [org.aloole.magicpotion :as mp]))
+  (:use [org.uncomplicate.magicpotion.predicates])
+  (:use [org.uncomplicate.magicpotion.core :as core])
+  (:use [org.uncomplicate.magicpotion.m3 :as m3])
+  (:use [org.uncomplicate.magicpotion :as mp]))
 
 (property pname
           [string?] 

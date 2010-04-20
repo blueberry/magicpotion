@@ -1,9 +1,9 @@
-(ns org.aloole.magicpotion
+(ns org.uncomplicate.magicpotion
   (:use clojure.contrib.generic.functor)
-  (:use org.aloole.magicpotion.utils)
-  (:use [org.aloole.magicpotion.validation :as validation])
-  (:use org.aloole.magicpotion.core)
-  (:use [org.aloole.magicpotion.m3 :as m3]))
+  (:use org.uncomplicate.magicpotion.utils)
+  (:use [org.uncomplicate.magicpotion.validation :as validation])
+  (:use org.uncomplicate.magicpotion.core)
+  (:use [org.uncomplicate.magicpotion.m3 :as m3]))
   
 (defn ref> 
   ([prop]
@@ -58,7 +58,7 @@
                           (to-keyword ~name)
                           ~restrictions
                           (map property-def ~super))]
-     (def ~name (create-property property-def#)))))
+     	(def ~name (create-property property-def#)))))
 
 (defn sanitize-roles [raw-roles]
   (map #(if (property? %) (val> %) %) raw-roles))

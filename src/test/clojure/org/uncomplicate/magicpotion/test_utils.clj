@@ -1,5 +1,5 @@
-(ns org.aloole.magicpotion.test-utils
-  (:use org.aloole.magicpotion.utils)
+(ns org.uncomplicate.magicpotion.test-utils
+  (:use org.uncomplicate.magicpotion.utils)
   (:use clojure.test))
 
 (defn aname [])

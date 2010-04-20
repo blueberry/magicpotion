@@ -1,6 +1,6 @@
-(ns org.aloole.magicpotion.test-predicates
+(ns org.uncomplicate.magicpotion.test-predicates
   (:use clojure.test)
-  (:use org.aloole.magicpotion.predicates))
+  (:use org.uncomplicate.magicpotion.predicates))
 
 (deftest test-ref?
          (is (ref? (ref :val)))
