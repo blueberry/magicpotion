@@ -118,7 +118,7 @@
   [role-defs] ;;before role-defs are provided, roles with the same name should be merged to support inheritance!
   (let [validators (zipmap (map (comp :name :property) role-defs) 
                            (map create-validator role-defs))] 
-        (reduce #(if (val %2) (assoc %1 (key %2) (val%2)) %1) {} validators)))
+        (reduce (fn [r [k v]] (if v (assoc r k v) r)) {} validators)))
 
 ;;---------------------------------------------------------------------
 (defn create-concept [concept-def]

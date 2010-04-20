@@ -5,9 +5,10 @@
   (:use [org.uncomplicate.magicpotion.m3 :as m3])
   (:use [org.uncomplicate.magicpotion :as mp]))
 
+; Test Domain Model
+
 (property pname
-          [string?] 
-          [])
+          [string?])
 
 (property first-name
           [(min-length 3)]
@@ -18,13 +19,11 @@
           [pname])
 
 (property start-date
-          [in-past?] 
-          [])
+          [in-past?])
 
 (concept person
          [first-name
-          last-name]
-         [])
+          last-name])
 	
 (concept professor
          [start-date]
@@ -39,30 +38,29 @@
          [professor])
 
 (property knows
-          [person?]
-          [])
+          [person?])
 
 (property loves
-          [person?]
-          [])
+          [person?])
 
 (concept social-person
-         [(ref> knows [])
-          (ref*> loves [] [])]
+         [(ref> knows)
+          (ref*> loves)]
          [person])
 
 (concept social-person-by-val
-         [(val> knows [])
-          (val*> loves [] [])]
+         [(val> knows)
+          (val*> loves)]
          [person])
 
 (concept party
          [pname])
 
 (concept company
-         [(val> pname)]
+         [(val> pname [(min-length 3)])]
          [party])
 
+;; Integration Tests
 
 (deftest test-concept-inheritance
          (is (= {::first-name nil, ::last-name nil} (person)))
@@ -142,3 +140,8 @@
 (deftest test-property
 				 (is (= ::knows (knows)))
 				 (is (= "some random data" (knows {::knows "some random data"}))))
+
+(deftest test-role-inheritance
+         (is (company? (company ::pname "A name")))
+         (is (thrown? IllegalArgumentException (company ::pname 1)))
+         (is (thrown? IllegalArgumentException (company ::pname "A"))))
