@@ -5,9 +5,10 @@
   (:use [org.uncomplicate.magicpotion.m3 :as m3])
   (:use [org.uncomplicate.magicpotion :as mp]))
 
+; Test Domain Model
+
 (property pname
-          [string?] 
-          [])
+          [string?])
 
 (property first-name
           [(min-length 3)]
@@ -18,13 +19,11 @@
           [pname])
 
 (property start-date
-          [in-past?] 
-          [])
+          [in-past?])
 
 (concept person
          [first-name
-          last-name]
-         [])
+          last-name])
 	
 (concept professor
          [start-date]
@@ -39,30 +38,38 @@
          [professor])
 
 (property knows
-          [person?]
-          [])
+          [person?])
 
 (property loves
-          [person?]
-          [])
+          [person?])
 
 (concept social-person
-         [(ref> knows [])
-          (ref*> loves [] [])]
+         [(ref> knows)
+          (ref*> loves)]
          [person])
 
 (concept social-person-by-val
-         [(val> knows [])
-          (val*> loves [] [])]
+         [(val> knows)
+          (val*> loves)]
          [person])
 
 (concept party
          [pname])
 
-(concept company
-         [(val> pname)]
-         [party])
+(property cname [string?])
 
+(property company-name
+				 [(min-length 2)]
+				 [pname cname])
+
+(concept company
+         [(val> pname [(min-length 3)])
+					(val> cname [#(= (first %) \A)])
+					(val> company-name [(max-length 6)])]
+         [party]
+				 [::company-name])
+
+;; Integration Tests
 
 (deftest test-concept-inheritance
          (is (= {::first-name nil, ::last-name nil} (person)))
@@ -120,11 +127,11 @@
          (is (not (social-person? (person))))
          (is (person? (social-person))))
 
-(deftest test-rel>
+(deftest test-ref>
          (is (social-person ::knows (atom (person))))
          (is (thrown? IllegalArgumentException (social-person ::knows (person)))))
 
-(deftest test-rel*>
+(deftest test-ref*>
          (is (social-person ::loves #{(atom (person))}))
          (is (thrown? Exception (social-person ::loves (atom (person)))))
          (is (thrown? Exception (social-person ::loves #{(person)}))))
@@ -132,7 +139,7 @@
 (deftest test-val>
          (is (social-person-by-val ::knows (person)))
          (is (thrown? IllegalArgumentException (social-person-by-val ::knows (atom person))))
-         (is (company? (company ::pname "A name"))))
+         (is (company? (company ::pname "A name" ::company-name "A123"))))
 
 (deftest test-val*>
          (is (social-person-by-val ::loves #{(person)}))
@@ -142,3 +149,15 @@
 (deftest test-property
 				 (is (= ::knows (knows)))
 				 (is (= "some random data" (knows {::knows "some random data"}))))
+
+(deftest test-role-inheritance
+         (is (company? (company ::pname "A name" ::company-name "A123")))
+         (is (company? (company ::company-name "A name")))
+         (is (thrown? IllegalArgumentException (company ::pname 1 ::company-name "A123")))
+         (is (thrown? IllegalArgumentException (company ::pname "A" ::company-name "A123")))
+         (is (thrown? IllegalArgumentException (company ::company-name "A1")))
+         (is (thrown? IllegalArgumentException (company ::company-name "A123456")))
+				 (is (thrown? IllegalArgumentException (company ::company-name "B123"))))
+
+(deftest test-concept-restrictions
+         (is (thrown? IllegalArgumentException (company))))

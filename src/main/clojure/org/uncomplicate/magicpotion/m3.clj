@@ -1,22 +1,23 @@
 (ns org.uncomplicate.magicpotion.m3
+	(:use clojure.contrib.seq-utils)
   (:use org.uncomplicate.magicpotion.utils)
   (:use org.uncomplicate.magicpotion.predicates)
   (:use [org.uncomplicate.magicpotion.validation :as validation])
   (:use org.uncomplicate.magicpotion.core))
 
 ;;-------------------- Bootstrap -------------------------------------
-(def concept-struct (create-struct :name :roles :super))
+(def concept-struct (create-struct :name :roles :restrictions :super))
 
 (def property-struct (create-struct :name :restrictions :super))
 
-(def role-struct (create-struct :property :kind :restrictions))
+(def role-struct (create-struct :property :kind :restrictions :super))
 
-(def many-role-struct (create-struct :property :kind :restrictions :set-restrictions))
+(def many-role-struct (create-struct :property :kind :restrictions :set-restrictions :super))
 
 (defn create-concept-def 
-  [pname roles super]
+  [pname roles restrictions super]
   (with-meta
-    (struct concept-struct pname roles super)
+    (struct concept-struct pname roles restrictions super)
     {:type ::m3-concept}))
   
 (defn concept-def
@@ -24,9 +25,9 @@
   (::def (meta v)))
 
 (defn create-property-def 
-  [pname validators super]
+  [pname restrictions super]
   (with-meta
-    (struct property-struct pname validators super)
+    (struct property-struct pname restrictions super)
     {:type ::m3-property}))
 
 (defn m3-property? [x]
@@ -40,39 +41,44 @@
   (::def (meta prop)))
 
 (defn create-role-def 
-  [property kind restrictions]
+  [property kind restrictions hierarchy]
   {:pre [(m3-property? property) (contains? #{:by-reference :by-value} kind)]}
   (with-meta
     (struct role-struct property kind restrictions)
-    {:type ::m3-role}))
+    {:type ::m3-role
+		 ::hierarchy hierarchy}))
 
 (defn create-many-role-def
-  [property kind restrictions set-restrictions]
+  [property kind restrictions set-restrictions hierarchy]
   {:pre [(m3-property? property) (contains? #{:by-reference :by-value} kind)]}
   (with-meta
     (struct many-role-struct property kind restrictions set-restrictions)
-    {:type ::m3-many-role}))
+    {:type ::m3-many-role
+		 ::hierarchy hierarchy}))
 
 ;;---------------------------------------------------------------------
-(defmulti create-validator (fn [role]  
-                               [(type role) (:kind role)]))
+(defmulti create-validator (fn [thing]  
+                               [(type thing) (:kind thing)]))
 
 (defmethod create-validator [::m3-property nil]
   [property-def]
     (create-val-validator (reverse (deep :restrictions property-def))))
 
+(defmethod create-validator [::m3-concept nil]
+  [concept-def]
+    (create-val-validator (reverse (deep :restrictions concept-def))))
+
 (defmethod create-validator [::m3-role :by-value]
   [role-def]
     (create-val-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
-                                  (seq (:restrictions role-def))))))
+                                  		 (reverse (deep :restrictions role-def))))))
 
 (defmethod create-validator [::m3-many-role :by-value]
   [role-def]
-  (let [property-def (:property role-def)
-        element-validator (create-multi-val-validator 
-                                (concat (reverse (deep :restrictions property-def))
-                                        (seq (:restrictions role-def))))]
-    (if-let [set-restrictions (seq (:set-restrictions role-def))]
+  (let [element-validator (create-multi-val-validator 
+														(concat (reverse (deep :restrictions (:property role-def)))
+                                    (reverse (deep :restrictions role-def))))]
+    (if-let [set-restrictions (reverse (deep :set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
         (fn [& args]
           (seq (concat (apply set-validator args) (apply element-validator args)))))
@@ -80,16 +86,15 @@
 
 (defmethod create-validator [::m3-role :by-reference]
   [role-def]
-    (create-ref-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
-                                  (seq (:restrictions role-def))))))
+  (create-ref-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
+                                  	 (reverse (deep :restrictions role-def))))))
 
 (defmethod create-validator [::m3-many-role :by-reference]
   [role-def]
-  (let [property-def (:property role-def)
-        element-validator (create-multi-ref-validator 
-                                (concat (reverse (deep :restrictions property-def))
-                                        (seq (:restrictions role-def))))]
-    (if-let [set-restrictions (seq (:set-restrictions role-def))]
+  (let [element-validator (create-multi-ref-validator 
+                                (concat (reverse (deep :restrictions (:property role-def)))
+                                        (reverse (deep :restrictions role-def))))]
+    (if-let [set-restrictions (reverse (deep :set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
         (fn [& args]
           (seq (concat (apply set-validator args) (apply element-validator args)))))
@@ -113,34 +118,53 @@
                 ::validation/validator (create-validator property-def)})))
 
 ;;--------------------------------------------------------------------------------------
+(defn inherit-roles [concept-def]
+	(let [roles (:roles concept-def)
+				deep-roles (deep :roles concept-def)
+				processed-roles (reduce (fn [r ro] 
+																	(cons (if-let [sro (set (filter 
+																										 	 			#(and (not (= ro %)) 
+																														 			(isa? (::hierarchy (meta ro)) 
+																															 		 			(:name (:property ro)) 
+																												    			 			(:name (:property %)))) 
+																														deep-roles))]
+																				(assoc ro :super (concat sro (:super ro)))
+																				ro)
+																			r))
+ 											 () roles)]
+		(assoc concept-def :roles processed-roles)))
 
 (defn create-validators
-  [role-defs] ;;before role-defs are provided, roles with the same name should be merged to support inheritance!
+  [role-defs] 
   (let [validators (zipmap (map (comp :name :property) role-defs) 
-                           (map create-validator role-defs))] 
-        (reduce #(if (val %2) (assoc %1 (key %2) (val%2)) %1) {} validators)))
+                           (map create-validator role-defs))]
+        (reduce (fn [r [k v]] (if v (assoc r k v) r)) {} validators)))
 
-;;---------------------------------------------------------------------
+;;-------------------------------------------------------------------------------------
+
 (defn create-concept [concept-def]
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
-        validators (create-validators (deep :roles concept-def))
+        validators (create-validators (reverse (deep :roles concept-def)))
+				concept-validator (create-validator concept-def)
         hierarchy (infer-hierarchy (make-hierarchy) concept-def)
         instance-metadata {:type concept-name
                            ::def concept-def
                            ::hierarchy hierarchy
                            ::struct concept-struct
-                           ::validation/validators validators}]
+                           ::validation/validators validators
+													 ::validation/validator concept-validator}]
     (ref (fn [& role-entries]
-           (with-meta
-             (apply struct-map concept-struct (validate validators role-entries))
-             instance-metadata))
+           (validate concept-validator 
+										 (with-meta
+             						(apply struct-map concept-struct (validate validators role-entries))
+             				 instance-metadata)))
        :meta {:type ::concept
               ::def concept-def
               ::hierarchy hierarchy
               ::name concept-name
-              ::validation/validators validators})))
-
+              ::validation/validators validators
+							::validation/validator concept-validator})))
 
 (defn concept? [x]
   (isa? (type x) ::concept))
@@ -153,4 +177,3 @@
       (if-let [hierarchy (::hierarchy (meta instance))]
               (isa? (::hierarchy (meta instance)) (type instance) concept-name)
               false))))
-

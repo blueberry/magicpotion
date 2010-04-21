@@ -12,7 +12,8 @@
   {:pre [(property? prop)]}
   (create-role-def (property-def prop) 
                    :by-reference
-                   restrictions)))
+                   restrictions
+									 (::m3/hierarchy (meta prop)))))
 
 (defn ref*> 
   ([prop]
@@ -24,7 +25,8 @@
   (create-many-role-def (property-def prop)
                         :by-reference
                         restrictions
-                        set-restrictions)))
+                        set-restrictions
+												(::m3/hierarchy (meta prop)))))
 
 (defn val> 
   ([prop]
@@ -33,7 +35,8 @@
   {:pre [(property? prop)]}
   (create-role-def (property-def prop)
                    :by-value
-                   restrictions)))
+                   restrictions
+									 (::m3/hierarchy (meta prop)))))
 
 (defn val*> 
   ([prop ]
@@ -45,19 +48,21 @@
   (create-many-role-def (property-def prop)
                         :by-value
                         restrictions
-                        set-restrictions)))
+                        set-restrictions
+												(::m3/hierarchy (meta prop)))))
 
 (defmacro property
   [name & params]
-  {:pre [(every? (partial contains? #{:restrictions :super}) (filter keyword? params))]}
+  {:pre [(every? (partial contains? #{:restrictions :super}) 
+								 (filter keyword? params))]}
   (let [pos (take-while (comp not keyword?) params)
         kw-map (apply hash-map (drop-while (comp not keyword?) params))
         restrictions (if-let [r (first pos)] r (:restrictions kw-map))
         super (if-let [s (second pos)] s (:super kw-map))]
     `(let [property-def# (create-property-def 
-                          (to-keyword ~name)
-                          ~restrictions
-                          (map property-def ~super))]
+                     			 (to-keyword ~name)
+                           ~restrictions
+                           (map property-def ~super))]
      	(def ~name (create-property property-def#)))))
 
 (defn sanitize-roles [raw-roles]
@@ -65,16 +70,20 @@
 
 (defmacro concept
   ([name & params]
-  {:pre [(every? (partial contains? #{:roles :super}) (filter keyword? params))]}
+  {:pre [(every? (partial contains? #{:roles :restrictions :super})
+								 (filter keyword? params))]}
   (let [pos (take-while (comp not keyword?) params)
         kw-map (apply hash-map (drop-while (comp not keyword?) params))
         roles (if-let [r (first pos)] r (:roles kw-map))
-        super (if-let [s (second pos)] s (:super kw-map))]
+        super (if-let [s (second pos)] s (:super kw-map))
+				restrictions (set (if-let [re (second (rest pos))] re (:restrictions kw-map)))]
    `(let [name-keyword# (to-keyword ~name)
-          concept-def# (create-concept-def
-                         name-keyword#
-                         (sanitize-roles ~roles)
-                         (map concept-def ~super))]
+          concept-def# (inherit-roles 
+											   (create-concept-def
+                         	 name-keyword#
+                         	 (sanitize-roles ~roles)
+													 ~restrictions
+                         	 (map concept-def ~super)))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
         (def ~name (create-concept concept-def#)))))))
