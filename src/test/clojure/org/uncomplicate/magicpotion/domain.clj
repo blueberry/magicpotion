@@ -56,12 +56,15 @@
 (concept party
          [pname])
 
+(property cname [string?])
+
 (property company-name
 				 [(min-length 2)]
-				 [pname])
+				 [pname cname])
 
 (concept company
          [(val> pname [(min-length 3)])
+					(val> cname [#(= (first %) \A)])
 					(val> company-name [(max-length 6)])]
          [party])
 
@@ -123,11 +126,11 @@
          (is (not (social-person? (person))))
          (is (person? (social-person))))
 
-(deftest test-rel>
+(deftest test-ref>
          (is (social-person ::knows (atom (person))))
          (is (thrown? IllegalArgumentException (social-person ::knows (person)))))
 
-(deftest test-rel*>
+(deftest test-ref*>
          (is (social-person ::loves #{(atom (person))}))
          (is (thrown? Exception (social-person ::loves (atom (person)))))
          (is (thrown? Exception (social-person ::loves #{(person)}))))
@@ -152,4 +155,5 @@
          (is (thrown? IllegalArgumentException (company ::pname 1)))
          (is (thrown? IllegalArgumentException (company ::pname "A")))
          (is (thrown? IllegalArgumentException (company ::company-name "A1")))
-         (is (thrown? IllegalArgumentException (company ::company-name "A123456"))))
+         (is (thrown? IllegalArgumentException (company ::company-name "A123456")))
+				 (is (thrown? IllegalArgumentException (company ::company-name "B123"))))
