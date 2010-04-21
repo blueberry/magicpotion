@@ -112,12 +112,6 @@
                 ::validation/validator (create-validator property-def)})))
 
 ;;--------------------------------------------------------------------------------------
-(defn inherit-restrictions [role-defs]
-	(vals (reduce (fn [r rd] 
-									(let [k ((comp :name :property) rd)]
-										(assoc r k (assoc-cat :restrictions (r k) rd))))
-								{} role-defs)))
-
 (defn inherit-roles [concept-def]
 	(let [rds (:roles concept-def)
 				deep-rds (deep :roles concept-def)
