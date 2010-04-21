@@ -6,7 +6,7 @@
   (:use org.uncomplicate.magicpotion.core))
 
 ;;-------------------- Bootstrap -------------------------------------
-(def concept-struct (create-struct :name :roles :super))
+(def concept-struct (create-struct :name :roles :restrictions :super))
 
 (def property-struct (create-struct :name :restrictions :super))
 
@@ -15,9 +15,9 @@
 (def many-role-struct (create-struct :property :kind :restrictions :set-restrictions :super))
 
 (defn create-concept-def 
-  [pname roles super]
+  [pname roles restrictions super]
   (with-meta
-    (struct concept-struct pname roles super)
+    (struct concept-struct pname roles restrictions super)
     {:type ::m3-concept}))
   
 (defn concept-def
@@ -25,9 +25,9 @@
   (::def (meta v)))
 
 (defn create-property-def 
-  [pname validators super]
+  [pname restrictions super]
   (with-meta
-    (struct property-struct pname validators super)
+    (struct property-struct pname restrictions super)
     {:type ::m3-property}))
 
 (defn m3-property? [x]
@@ -57,12 +57,16 @@
 		 ::hierarchy hierarchy}))
 
 ;;---------------------------------------------------------------------
-(defmulti create-validator (fn [role]  
-                               [(type role) (:kind role)]))
+(defmulti create-validator (fn [thing]  
+                               [(type thing) (:kind thing)]))
 
 (defmethod create-validator [::m3-property nil]
   [property-def]
     (create-val-validator (reverse (deep :restrictions property-def))))
+
+(defmethod create-validator [::m3-concept nil]
+  [concept-def]
+    (create-val-validator (reverse (deep :restrictions concept-def))))
 
 (defmethod create-validator [::m3-role :by-value]
   [role-def]
@@ -142,22 +146,25 @@
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
         validators (create-validators (reverse (deep :roles concept-def)))
+				concept-validator (create-validator concept-def)
         hierarchy (infer-hierarchy (make-hierarchy) concept-def)
         instance-metadata {:type concept-name
                            ::def concept-def
                            ::hierarchy hierarchy
                            ::struct concept-struct
-                           ::validation/validators validators}]
+                           ::validation/validators validators
+													 ::validation/validator concept-validator}]
     (ref (fn [& role-entries]
-           (with-meta
-             (apply struct-map concept-struct (validate validators role-entries))
-             instance-metadata))
+           (validate concept-validator 
+										 (with-meta
+             						(apply struct-map concept-struct (validate validators role-entries))
+             				 instance-metadata)))
        :meta {:type ::concept
               ::def concept-def
               ::hierarchy hierarchy
               ::name concept-name
-              ::validation/validators validators})))
-
+              ::validation/validators validators
+							::validation/validator concept-validator})))
 
 (defn concept? [x]
   (isa? (type x) ::concept))

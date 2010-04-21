@@ -6,12 +6,11 @@
          (is (fn? (create-val-validator string?)))
          (is (thrown? AssertionError (create-val-validator nil)))
          (is (thrown? AssertionError (create-val-validator "a")))
-         (is (thrown? AssertionError (create-val-validator :a)))
          ;;(is (thrown? Exception (create-val-validator [])))
          (is (fn? (create-val-validator [#(and (not (string? %)) (not (keyword? %)))])))
          (is (fn? (create-val-validator [string?])))
          (is (fn? (create-val-validator [string? fn?])))
-         (is (thrown? AssertionError (create-val-validator [string? :a]))))
+         (is (thrown? AssertionError (create-val-validator [string? "a"]))))
 
 (deftest test-validator
          (let [validator (create-val-validator string?)]
@@ -73,16 +72,16 @@
            (is (= some-map (validate some-map)))
            (is (= some-map (validate nil some-map))))
          (let [validators {:p1 (create-val-validator string?)}
-               validators-meta {::mp/validators validators}]
+               validator-meta {::mp/validator (create-val-validator [:p2])}]
            (is (= {:p1 "a"} 
                   (validate validators {:p1 "a"})))
            (is (= [:p1 "a"] 
                   (validate validators [:p1 "a"])))
-           (is (= {:p1 "a"} 
-                  (validate (with-meta {:p1 "a"} validators-meta))))
+           (is (= {:p1 "a" :p2 :f} 
+                  (validate (with-meta {:p1 "a" :p2 :f} validator-meta))))
            (is (thrown? IllegalArgumentException 
                         (validate validators {:p1 :a})))
            (is (thrown? IllegalArgumentException 
                         (validate validators [:p1 :a])))
            (is (thrown? IllegalArgumentException 
-                        (validate (with-meta {:p1 :a} validators-meta))))))
+                        (validate (with-meta {:p1 :a} validator-meta))))))

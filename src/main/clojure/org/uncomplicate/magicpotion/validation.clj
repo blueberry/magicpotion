@@ -58,7 +58,7 @@
 
 (defn create-generic-validator
   ([applier f]
-   (assert (or (fn? f) (and (sequential? f) (every? fn? f))))
+   (assert (or (fn? f) (keyword? f) (and (sequential? f) (every? #(or (fn? %) (keyword? %)) f))))
    (cond
      (fn? f) (fn [& args]
                (if (applier f args)
@@ -83,14 +83,14 @@
 (def create-multi-ref-validator 
   (partial create-generic-validator every-deref-apply))
 
-(defn assoc-violations [validator result value-entry]
-  (if-let [errors (safe-apply validator (val value-entry))]
-    (assoc result (key value-entry) errors)
+(defn assoc-violations [validator result [k v]]
+  (if-let [errors (safe-apply validator v)]
+    (assoc result k errors)
     result))
 
 (defmulti violations (fn 
-                       ([x] (type x))
-                       ([x y] [(type x) (type y)])))
+                       ([x] (class x))
+                       ([x y] [(class x) (class y)])))
 
 (defmethod violations
   [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
@@ -98,7 +98,7 @@
   (let [errors (reduce #(if-let [validator (validators (key %2))] 
                                   (assoc-violations validator %1 %2) 
                                   %1)
-                               {} values)] 
+                       {} values)] 
     (if (seq errors) errors nil)))
 
 (defmethod violations
@@ -106,6 +106,8 @@
   [validators values]
   (violations validators (safe-apply hash-map values)))
 
+;; remove to support concept restrictions
+(comment
 (defmethod violations
   [clojure.lang.IFn clojure.lang.IPersistentMap]
   [validator values]
@@ -117,7 +119,7 @@
   [validator value]
   (if-let [errors (apply validator value)]
     {value errors}
-    nil))
+    nil)))
 
 (defmethod violations
   [clojure.lang.IFn Object]
@@ -139,12 +141,12 @@
 (prefer-method violations
                [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
                [clojure.lang.IPersistentMap clojure.lang.Sequential])
-(prefer-method violations
+(comment (prefer-method violations
                [clojure.lang.IPersistentMap clojure.lang.IPersistentMap]
                [clojure.lang.IFn clojure.lang.IPersistentMap])
-(prefer-method violations
+ 				 (prefer-method violations
                [clojure.lang.IPersistentMap clojure.lang.Sequential]
-               [clojure.lang.IFn clojure.lang.Sequential])
+               [clojure.lang.IFn clojure.lang.Sequential]))
 (prefer-method violations
                [clojure.lang.IPersistentMap clojure.lang.Sequential]
                [clojure.lang.IFn Object])
@@ -162,7 +164,7 @@
 
 (defn validate
   ([x]
-   (validate (::validators (meta x)) x))
+   (validate (::validator (meta x)) x))
   ([validator x]
    (if validator
      (if-let [errors (seq (violations validator x))]

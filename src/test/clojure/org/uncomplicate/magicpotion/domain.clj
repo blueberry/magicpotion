@@ -66,7 +66,8 @@
          [(val> pname [(min-length 3)])
 					(val> cname [#(= (first %) \A)])
 					(val> company-name [(max-length 6)])]
-         [party])
+         [party]
+				 [::company-name])
 
 ;; Integration Tests
 
@@ -138,7 +139,7 @@
 (deftest test-val>
          (is (social-person-by-val ::knows (person)))
          (is (thrown? IllegalArgumentException (social-person-by-val ::knows (atom person))))
-         (is (company? (company ::pname "A name"))))
+         (is (company? (company ::pname "A name" ::company-name "A123"))))
 
 (deftest test-val*>
          (is (social-person-by-val ::loves #{(person)}))
@@ -150,10 +151,13 @@
 				 (is (= "some random data" (knows {::knows "some random data"}))))
 
 (deftest test-role-inheritance
-         (is (company? (company ::pname "A name")))
+         (is (company? (company ::pname "A name" ::company-name "A123")))
          (is (company? (company ::company-name "A name")))
-         (is (thrown? IllegalArgumentException (company ::pname 1)))
-         (is (thrown? IllegalArgumentException (company ::pname "A")))
+         (is (thrown? IllegalArgumentException (company ::pname 1 ::company-name "A123")))
+         (is (thrown? IllegalArgumentException (company ::pname "A" ::company-name "A123")))
          (is (thrown? IllegalArgumentException (company ::company-name "A1")))
          (is (thrown? IllegalArgumentException (company ::company-name "A123456")))
 				 (is (thrown? IllegalArgumentException (company ::company-name "B123"))))
+
+(deftest test-concept-restrictions
+         (is (thrown? IllegalArgumentException (company))))

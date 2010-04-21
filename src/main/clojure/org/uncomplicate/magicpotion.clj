@@ -70,17 +70,19 @@
 
 (defmacro concept
   ([name & params]
-  {:pre [(every? (partial contains? #{:roles :super})
+  {:pre [(every? (partial contains? #{:roles :restrictions :super})
 								 (filter keyword? params))]}
   (let [pos (take-while (comp not keyword?) params)
         kw-map (apply hash-map (drop-while (comp not keyword?) params))
         roles (if-let [r (first pos)] r (:roles kw-map))
-        super (if-let [s (second pos)] s (:super kw-map))]
+        super (if-let [s (second pos)] s (:super kw-map))
+				restrictions (set (if-let [re (second (rest pos))] re (:restrictions kw-map)))]
    `(let [name-keyword# (to-keyword ~name)
           concept-def# (inherit-roles 
 											   (create-concept-def
                          	 name-keyword#
                          	 (sanitize-roles ~roles)
+													 ~restrictions
                          	 (map concept-def ~super)))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
