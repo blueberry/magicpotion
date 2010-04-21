@@ -49,7 +49,8 @@
 
 (defmacro property
   [name & params]
-  {:pre [(every? (partial contains? #{:restrictions :super}) (filter keyword? params))]}
+  {:pre [(every? (partial contains? #{:restrictions :super}) 
+								 (filter keyword? params))]}
   (let [pos (take-while (comp not keyword?) params)
         kw-map (apply hash-map (drop-while (comp not keyword?) params))
         restrictions (if-let [r (first pos)] r (:restrictions kw-map))
