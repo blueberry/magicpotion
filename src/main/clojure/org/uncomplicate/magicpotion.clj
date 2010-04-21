@@ -12,7 +12,8 @@
   {:pre [(property? prop)]}
   (create-role-def (property-def prop) 
                    :by-reference
-                   restrictions)))
+                   restrictions
+									 (::m3/hierarchy (meta prop)))))
 
 (defn ref*> 
   ([prop]
@@ -24,7 +25,8 @@
   (create-many-role-def (property-def prop)
                         :by-reference
                         restrictions
-                        set-restrictions)))
+                        set-restrictions
+												(::m3/hierarchy (meta prop)))))
 
 (defn val> 
   ([prop]
@@ -33,7 +35,8 @@
   {:pre [(property? prop)]}
   (create-role-def (property-def prop)
                    :by-value
-                   restrictions)))
+                   restrictions
+									 (::m3/hierarchy (meta prop)))))
 
 (defn val*> 
   ([prop ]
@@ -45,7 +48,8 @@
   (create-many-role-def (property-def prop)
                         :by-value
                         restrictions
-                        set-restrictions)))
+                        set-restrictions
+												(::m3/hierarchy (meta prop)))))
 
 (defmacro property
   [name & params]

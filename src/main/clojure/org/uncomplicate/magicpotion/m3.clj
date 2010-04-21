@@ -41,18 +41,20 @@
   (::def (meta prop)))
 
 (defn create-role-def 
-  [property kind restrictions]
+  [property kind restrictions hierarchy]
   {:pre [(m3-property? property) (contains? #{:by-reference :by-value} kind)]}
   (with-meta
     (struct role-struct property kind restrictions)
-    {:type ::m3-role}))
+    {:type ::m3-role
+		 ::hierarchy hierarchy}))
 
 (defn create-many-role-def
-  [property kind restrictions set-restrictions]
+  [property kind restrictions set-restrictions hierarchy]
   {:pre [(m3-property? property) (contains? #{:by-reference :by-value} kind)]}
   (with-meta
     (struct many-role-struct property kind restrictions set-restrictions)
-    {:type ::m3-many-role}))
+    {:type ::m3-many-role
+		 ::hierarchy hierarchy}))
 
 ;;---------------------------------------------------------------------
 (defmulti create-validator (fn [role]  
@@ -116,12 +118,13 @@
 	(let [roles (:roles concept-def)
 				deep-roles (deep :roles concept-def)
 				processed-roles (reduce (fn [r ro] 
-																(cons (if-let [sro (find-first 
-																											#(and (not (= ro %)) 
-																														((partial = (:name (:property ro))) 
-																												    	(:name (:property %)))) 
-																											deep-roles)]
-																				(assoc ro :super (cons sro (:super ro)))
+																	(cons (if-let [sro (set (filter 
+																										 	 			#(and (not (= ro %)) 
+																														 			(isa? (::hierarchy (meta ro)) 
+																															 		 			(:name (:property ro)) 
+																												    			 			(:name (:property %)))) 
+																														deep-roles))]
+																				(assoc ro :super (concat sro (:super ro)))
 																				ro)
 																			r))
  											 () roles)]

@@ -56,8 +56,13 @@
 (concept party
          [pname])
 
+(property company-name
+				 [(min-length 2)]
+				 [pname])
+
 (concept company
-         [(val> pname [(min-length 3)])]
+         [(val> pname [(min-length 3)])
+					(val> company-name [(max-length 6)])]
          [party])
 
 ;; Integration Tests
@@ -143,5 +148,8 @@
 
 (deftest test-role-inheritance
          (is (company? (company ::pname "A name")))
+         (is (company? (company ::company-name "A name")))
          (is (thrown? IllegalArgumentException (company ::pname 1)))
-         (is (thrown? IllegalArgumentException (company ::pname "A"))))
+         (is (thrown? IllegalArgumentException (company ::pname "A")))
+         (is (thrown? IllegalArgumentException (company ::company-name "A1")))
+         (is (thrown? IllegalArgumentException (company ::company-name "A123456"))))
