@@ -113,18 +113,18 @@
 
 ;;--------------------------------------------------------------------------------------
 (defn inherit-roles [concept-def]
-	(let [rds (:roles concept-def)
-				deep-rds (deep :roles concept-def)
-				processed-rds (reduce (fn [r rd] 
-																(cons (if-let [srd (find-first 
-																											#(and (not (= rd %)) 
-																														((partial = (:name (:property rd))) 
+	(let [roles (:roles concept-def)
+				deep-roles (deep :roles concept-def)
+				processed-roles (reduce (fn [r ro] 
+																(cons (if-let [sro (find-first 
+																											#(and (not (= ro %)) 
+																														((partial = (:name (:property ro))) 
 																												    	(:name (:property %)))) 
-																											deep-rds)]
-																				(assoc rd :super (cons srd (:super rd)))
-																				rd)
+																											deep-roles)]
+																				(assoc ro :super (cons sro (:super ro)))
+																				ro)
 																			r))
- 											 () rds)]
+ 											 () roles)]
 		(assoc concept-def :roles processed-rds)))
 
 (defn create-validators
