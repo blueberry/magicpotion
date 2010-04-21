@@ -64,14 +64,13 @@
 (defmethod create-validator [::m3-role :by-value]
   [role-def]
     (create-val-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
-                                  (seq (:restrictions role-def))))))
+                                  		 (seq (:restrictions role-def))))))
 
 (defmethod create-validator [::m3-many-role :by-value]
   [role-def]
-  (let [property-def (:property role-def)
-        element-validator (create-multi-val-validator 
-                                (concat (reverse (deep :restrictions property-def))
-                                        (seq (:restrictions role-def))))]
+  (let [element-validator (create-multi-val-validator 
+														(concat (reverse (deep :restrictions (:property role-def)))
+                                    (seq (:restrictions role-def))))]
     (if-let [set-restrictions (seq (:set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
         (fn [& args]
@@ -85,9 +84,8 @@
 
 (defmethod create-validator [::m3-many-role :by-reference]
   [role-def]
-  (let [property-def (:property role-def)
-        element-validator (create-multi-ref-validator 
-                                (concat (reverse (deep :restrictions property-def))
+  (let [element-validator (create-multi-ref-validator 
+                                (concat (reverse (deep :restrictions (:property role-def)))
                                         (seq (:restrictions role-def))))]
     (if-let [set-restrictions (seq (:set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
@@ -117,10 +115,10 @@
 (defn create-validators
   [role-defs] ;;before role-defs are provided, roles with the same name should be merged to support inheritance!
   (let [validators (zipmap (map (comp :name :property) role-defs) 
-                           (map create-validator role-defs))] 
+                           (map create-validator role-defs))]
         (reduce (fn [r [k v]] (if v (assoc r k v) r)) {} validators)))
 
-;;---------------------------------------------------------------------
+;;-------------------------------------------------------------------------------------
 (defn create-concept [concept-def]
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
