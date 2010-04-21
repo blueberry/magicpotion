@@ -125,7 +125,7 @@
 																				ro)
 																			r))
  											 () roles)]
-		(assoc concept-def :roles processed-rds)))
+		(assoc concept-def :roles processed-roles)))
 
 (defn create-validators
   [role-defs] 
