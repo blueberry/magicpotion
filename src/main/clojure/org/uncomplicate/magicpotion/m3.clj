@@ -1,4 +1,5 @@
 (ns org.uncomplicate.magicpotion.m3
+	(:use clojure.contrib.seq-utils)
   (:use org.uncomplicate.magicpotion.utils)
   (:use org.uncomplicate.magicpotion.predicates)
   (:use [org.uncomplicate.magicpotion.validation :as validation])
@@ -116,6 +117,21 @@
 									(let [k ((comp :name :property) rd)]
 										(assoc r k (assoc-cat :restrictions (r k) rd))))
 								{} role-defs)))
+
+(defn inherit-roles [concept-def]
+	(let [rds (:roles concept-def)
+				deep-rds (deep :roles concept-def)
+				processed-rds (reduce (fn [r rd] 
+																(cons (if-let [srd (find-first 
+																											#(and (not (= rd %)) 
+																														((partial = (:name (:property rd))) 
+																												    	(:name (:property %)))) 
+																											deep-rds)]
+																				(assoc rd :super (cons srd (:super rd)))
+																				rd)
+																			r))
+ 											 () rds)]
+		(assoc concept-def :roles processed-rds)))
 
 (defn create-validators
   [role-defs] 
