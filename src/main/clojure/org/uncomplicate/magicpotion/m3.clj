@@ -111,14 +111,21 @@
                 ::validation/validator (create-validator property-def)})))
 
 ;;--------------------------------------------------------------------------------------
+(defn inherit-restrictions [role-defs]
+	(vals (reduce (fn [r rd] 
+									(let [k ((comp :name :property) rd)]
+										(assoc r k (assoc-cat :restrictions (r k) rd))))
+								{} role-defs)))
 
 (defn create-validators
-  [role-defs] ;;before role-defs are provided, roles with the same name should be merged to support inheritance!
-  (let [validators (zipmap (map (comp :name :property) role-defs) 
-                           (map create-validator role-defs))]
+  [role-defs] 
+  (let [merged-defs (inherit-restrictions role-defs)
+				validators (zipmap (map (comp :name :property) merged-defs) 
+                           (map create-validator merged-defs))]
         (reduce (fn [r [k v]] (if v (assoc r k v) r)) {} validators)))
 
 ;;-------------------------------------------------------------------------------------
+
 (defn create-concept [concept-def]
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
@@ -151,4 +158,3 @@
       (if-let [hierarchy (::hierarchy (meta instance))]
               (isa? (::hierarchy (meta instance)) (type instance) concept-name)
               false))))
-

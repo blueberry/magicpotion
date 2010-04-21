@@ -34,6 +34,10 @@
 (defmacro defmeta [sym m exp] 
   `(def ~(with-meta sym m) ~exp))
 
+(defn assoc-cat [k m1 m2]
+	{:pre [(keyword? k)]}
+	(assoc m2 k (concat (k m1) (k m2))))
+
 ;;by Constantine Vetoshev
 ;;waits to be added to clojure.contrib.macros. Should be removed once it is there
 (defmacro let-kw 

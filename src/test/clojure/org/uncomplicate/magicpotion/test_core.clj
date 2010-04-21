@@ -4,6 +4,6 @@
 
 (deftest test-create-struct-deep
          (let [concept-def {:name ::aconcept
-                            :roles [{:property {:name :aproperty :validators [string?]} :kind :by-value}]
+                            :roles [{:property {:name :aproperty :restrictions[string?]} :kind :by-value}]
                             :super []}]
            (is (= :value (:aproperty (struct (create-struct-deep concept-def) :value))))))
