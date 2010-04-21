@@ -10,9 +10,9 @@
 
 (def property-struct (create-struct :name :restrictions :super))
 
-(def role-struct (create-struct :property :kind :restrictions))
+(def role-struct (create-struct :property :kind :restrictions :super))
 
-(def many-role-struct (create-struct :property :kind :restrictions :set-restrictions))
+(def many-role-struct (create-struct :property :kind :restrictions :set-restrictions :super))
 
 (defn create-concept-def 
   [pname roles super]
@@ -65,14 +65,14 @@
 (defmethod create-validator [::m3-role :by-value]
   [role-def]
     (create-val-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
-                                  		 (seq (:restrictions role-def))))))
+                                  		 (reverse (deep :restrictions role-def))))))
 
 (defmethod create-validator [::m3-many-role :by-value]
   [role-def]
   (let [element-validator (create-multi-val-validator 
 														(concat (reverse (deep :restrictions (:property role-def)))
-                                    (seq (:restrictions role-def))))]
-    (if-let [set-restrictions (seq (:set-restrictions role-def))]
+                                    (reverse (deep :restrictions role-def))))]
+    (if-let [set-restrictions (reverse (deep :set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
         (fn [& args]
           (seq (concat (apply set-validator args) (apply element-validator args)))))
@@ -80,15 +80,15 @@
 
 (defmethod create-validator [::m3-role :by-reference]
   [role-def]
-    (create-ref-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
-                                  (seq (:restrictions role-def))))))
+  (create-ref-validator (seq (concat (reverse (deep :restrictions (:property role-def))) 
+                                  	 (reverse (deep :restrictions role-def))))))
 
 (defmethod create-validator [::m3-many-role :by-reference]
   [role-def]
   (let [element-validator (create-multi-ref-validator 
                                 (concat (reverse (deep :restrictions (:property role-def)))
-                                        (seq (:restrictions role-def))))]
-    (if-let [set-restrictions (seq (:set-restrictions role-def))]
+                                        (reverse (deep :restrictions role-def))))]
+    (if-let [set-restrictions (reverse (deep :set-restrictions role-def))]
       (let  [set-validator (create-val-validator set-restrictions)]
         (fn [& args]
           (seq (concat (apply set-validator args) (apply element-validator args)))))
@@ -135,9 +135,8 @@
 
 (defn create-validators
   [role-defs] 
-  (let [merged-defs (inherit-restrictions role-defs)
-				validators (zipmap (map (comp :name :property) merged-defs) 
-                           (map create-validator merged-defs))]
+  (let [validators (zipmap (map (comp :name :property) role-defs) 
+                           (map create-validator role-defs))]
         (reduce (fn [r [k v]] (if v (assoc r k v) r)) {} validators)))
 
 ;;-------------------------------------------------------------------------------------
@@ -145,7 +144,7 @@
 (defn create-concept [concept-def]
   (let [concept-name (:name concept-def)
         concept-struct (create-struct-deep concept-def)
-        validators (create-validators (deep :roles concept-def))
+        validators (create-validators (reverse (deep :roles concept-def)))
         hierarchy (infer-hierarchy (make-hierarchy) concept-def)
         instance-metadata {:type concept-name
                            ::def concept-def
