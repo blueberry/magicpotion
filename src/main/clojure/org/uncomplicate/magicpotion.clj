@@ -60,7 +60,7 @@
         restrictions (if-let [r (first pos)] r (:restrictions kw-map))
         super (if-let [s (second pos)] s (:super kw-map))]
     `(let [property-def# (create-property-def
-                            (to-keyword ~name)
+                           (to-keyword ~name)
                            ~restrictions
                            (map property-def ~super))]
        (def ~name (create-property property-def#)))))
@@ -80,10 +80,10 @@
    `(let [name-keyword# (to-keyword ~name)
           concept-def# (inherit-roles
                          (create-concept-def
-                            name-keyword#
-                            (sanitize-roles ~roles)
+                           name-keyword#
+                           (sanitize-roles ~roles)
                            ~restrictions
-                            (map concept-def ~super)))]
+                           (map concept-def ~super)))]
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
         (def ~name (create-concept concept-def#)))))))
