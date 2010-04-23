@@ -8,11 +8,11 @@
    'org.uncomplicate.magicpotion.test-core
    'org.uncomplicate.magicpotion.test-predicates
    'org.uncomplicate.magicpotion.test-m3
-   'org.uncomplicate.magicpotion.domain])
+   'org.uncomplicate.magicpotion.examples.domain])
 
 (println "Loading code ...")
 (time (apply use spaces))
-  
+
 (println "Executing tests ...")
 
 (doseq [ns (map find-ns spaces)]

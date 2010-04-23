@@ -1,4 +1,4 @@
-(ns org.uncomplicate.magicpotion.domain
+(ns org.uncomplicate.magicpotion.examples.domain
   (:use [clojure.test])
   (:use [org.uncomplicate.magicpotion.predicates])
   (:use [org.uncomplicate.magicpotion.core :as core])
@@ -24,7 +24,7 @@
 (concept person
          [first-name
           last-name])
-	
+
 (concept professor
          [start-date]
          [person])
@@ -59,15 +59,15 @@
 (property cname [string?])
 
 (property company-name
-				 [(min-length 2)]
-				 [pname cname])
+         [(min-length 2)]
+         [pname cname])
 
 (concept company
          [(val> pname [(min-length 3)])
-					(val> cname [#(= (first %) \A)])
-					(val> company-name [(max-length 6)])]
+          (val> cname [#(= (first %) \A)])
+          (val> company-name [(max-length 6)])]
          [party]
-				 [::company-name])
+         [::company-name])
 
 ;; Integration Tests
 
@@ -83,42 +83,42 @@
 (deftest test-concept-validator
          (is (= {::first-name "Pera", ::last-name nil ::start-date nil} (professor ::first-name "Pera")))
          (is (= {::first-name nil, ::last-name "Peric" ::start-date nil} (professor ::last-name "Peric")))
-         (is (= {::first-name nil, ::last-name nil ::start-date  
-                 (. (java.util.GregorianCalendar. 2000 01 04) getTime)} 
+         (is (= {::first-name nil, ::last-name nil ::start-date
+                 (. (java.util.GregorianCalendar. 2000 01 04) getTime)}
                 (professor ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
-         (is (= {::first-name "Pera", ::last-name "Peric" 
-                 ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime)} 
-                (professor ::first-name "Pera" ::last-name "Peric" 
+         (is (= {::first-name "Pera", ::last-name "Peric"
+                 ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime)}
+                (professor ::first-name "Pera" ::last-name "Peric"
                            ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime) )))
-         (is (thrown? IllegalArgumentException  (professor ::first-name 15 
+         (is (thrown? IllegalArgumentException  (professor ::first-name 15
                      ::start-date (. (java.util.GregorianCalendar. 2000 01 04) getTime))))
-         (is (thrown? IllegalArgumentException  (professor ::first-name "pera" 
+         (is (thrown? IllegalArgumentException  (professor ::first-name "pera"
                      ::start-date (. (java.util.GregorianCalendar. 3000 01 04) getTime)))))
 
 (deftest test-hierarchy
-         (is (= {:parents {}, :descendants {}, :ancestors {}} 
+         (is (= {:parents {}, :descendants {}, :ancestors {}}
                 (::m3/hierarchy (meta pname))))
-         (is (= {:parents {::first-name #{::pname}}, 
-                 :descendants {::pname #{::first-name}}, 
-                 :ancestors {::first-name #{::pname}}} 
+         (is (= {:parents {::first-name #{::pname}},
+                 :descendants {::pname #{::first-name}},
+                 :ancestors {::first-name #{::pname}}}
                 (::m3/hierarchy (meta first-name))))
-         (is (= {:parents {::last-name #{::pname}}, 
-                 :descendants {::pname #{::last-name}}, 
-                 :ancestors {::last-name #{::pname}}} 
+         (is (= {:parents {::last-name #{::pname}},
+                 :descendants {::pname #{::last-name}},
+                 :ancestors {::last-name #{::pname}}}
                 (::m3/hierarchy (meta last-name))))
-         (is (= {:parents {}, :descendants {}, :ancestors {}} 
+         (is (= {:parents {}, :descendants {}, :ancestors {}}
                 (::m3/hierarchy (meta person))))
-         (is (= {:parents {::professor #{::person}}, 
-                 :descendants {::person #{::professor}}, 
-                 :ancestors {::professor #{::person}}} 
+         (is (= {:parents {::professor #{::person}},
+                 :descendants {::person #{::professor}},
+                 :ancestors {::professor #{::person}}}
                 (::m3/hierarchy (meta professor))))
-         (is (= {:parents {::last-name #{::pname}, ::transcedental-property #{::last-name}}, 
-                 :descendants {::pname #{::last-name, ::transcedental-property}, 
-                               ::last-name #{::transcedental-property}}, 
-                 :ancestors {::last-name #{::pname} ::transcedental-property #{::pname, ::last-name}}} 
+         (is (= {:parents {::last-name #{::pname}, ::transcedental-property #{::last-name}},
+                 :descendants {::pname #{::last-name, ::transcedental-property},
+                               ::last-name #{::transcedental-property}},
+                 :ancestors {::last-name #{::pname} ::transcedental-property #{::pname, ::last-name}}}
                 (::m3/hierarchy (meta transcedental-property))))
-         (is (= {:parents {::professor #{::person}, ::transcedental-being #{::professor}}, 
-                 :ancestors {::professor #{::person}, ::transcedental-being #{::professor ::person}}, 
+         (is (= {:parents {::professor #{::person}, ::transcedental-being #{::professor}},
+                 :ancestors {::professor #{::person}, ::transcedental-being #{::professor ::person}},
                  :descendants {::person #{::professor ::transcedental-being}, ::professor #{::transcedental-being}}}
                 (::m3/hierarchy (meta transcedental-being)))))
 
@@ -147,8 +147,8 @@
          (is (thrown? Exception (social-person-by-val ::loves #{(atom (person))}))))
 
 (deftest test-property
-				 (is (= ::knows (knows)))
-				 (is (= "some random data" (knows {::knows "some random data"}))))
+         (is (= ::knows (knows)))
+         (is (= "some random data" (knows {::knows "some random data"}))))
 
 (deftest test-role-inheritance
          (is (company? (company ::pname "A name" ::company-name "A123")))
@@ -157,7 +157,7 @@
          (is (thrown? IllegalArgumentException (company ::pname "A" ::company-name "A123")))
          (is (thrown? IllegalArgumentException (company ::company-name "A1")))
          (is (thrown? IllegalArgumentException (company ::company-name "A123456")))
-				 (is (thrown? IllegalArgumentException (company ::company-name "B123"))))
+         (is (thrown? IllegalArgumentException (company ::company-name "B123"))))
 
 (deftest test-concept-restrictions
          (is (thrown? IllegalArgumentException (company))))
