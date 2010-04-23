@@ -2,35 +2,34 @@
 (ns org.uncomplicate.magicpotion.examples.parties.e2
   (:use clojure.test))
 
-; ----- Including Magic Potion -----
 (use 'org.uncomplicate.magicpotion)
 (use 'org.uncomplicate.magicpotion.predicates)
 
 ; ----- General property that can be reused -----
-(property generic-name
+(property aname
           [string?])
 
 ; ----- General concept with the general property
 (concept party
-         [generic-name])
+         [aname])
 
 (deftest test-general-concept
-  (let [valid-name "Valid-generic-name"
+  (let [valid-name "Valid-aname"
         invalid-name :kw]
-    (is (= {::generic-name nil} (party)))
-    (is (= {::generic-name valid-name}
-           (party ::generic-name valid-name)))
+    (is (= {::aname nil} (party)))
+    (is (= {::aname valid-name}
+           (party ::aname valid-name)))
     (is (thrown? IllegalArgumentException
-           (party ::generic-name invalid-name)))))
+           (party ::aname invalid-name)))))
 
 ; ----- Specialized properties -----
 (property first-name
           [(length-between 2 32)]
-          [generic-name])
+          [aname])
 
 (property last-name
           [(min-length 3) (max-length 32)]
-          [generic-name])
+          [aname])
 
 ; ----- Specialized concepts -----
 (concept person
@@ -39,33 +38,33 @@
          [party])
 
 (concept company
-         [(val> generic-name [(length-between 2 64)])]
+         [(val> aname [(length-between 2 64)])]
          [party])
 
 (deftest test-specialized-concepts
-  (let [valid-generic-name "Some-random-name"
+  (let [valid-aname "Some-random-name"
         valid-first-name "Jo"
         valid-last-name "Lee"]
     ; Test Person
-    (is (= {::generic-name nil ::first-name nil ::last-name nil} (person)))
-    (is (= {::generic-name valid-generic-name
+    (is (= {::aname nil ::first-name nil ::last-name nil} (person)))
+    (is (= {::aname valid-aname
             ::first-name nil ::last-name nil}
-           (person ::generic-name valid-generic-name)))
-    (is (= {::generic-name valid-generic-name
+           (person ::aname valid-aname)))
+    (is (= {::aname valid-aname
               ::first-name valid-first-name
               ::last-name valid-last-name}
-           (person ::generic-name valid-generic-name
+           (person ::aname valid-aname
                    ::first-name valid-first-name
                    ::last-name valid-last-name)))
     (is (thrown? IllegalArgumentException
-           (person ::generic-name :A-keyword-is-not-a-string)))
+           (person ::aname :A-keyword-is-not-a-string)))
     (is (thrown? IllegalArgumentException
            (person ::first-name "A")))
     ; Test Company
-    (is (= {::generic-name nil} (company)))
-    (is (= {::generic-name valid-generic-name}
-           (company ::generic-name valid-generic-name)))
+    (is (= {::aname nil} (company)))
+    (is (= {::aname valid-aname}
+           (company ::aname valid-aname)))
     (is (thrown? IllegalArgumentException
-           (company ::generic-name "C")))
+           (company ::aname "C")))
     (is (thrown? IllegalArgumentException
-           (company ::generic-name :A-keyword-is-not-a-string)))))
+           (company ::aname :A-keyword-is-not-a-string)))))
