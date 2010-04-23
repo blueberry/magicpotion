@@ -1,5 +1,5 @@
 ; ===== Iteration 2: Inheritance - reusing through specialization ============
-(ns org.uncomplicate.magicpotion.examples.parties.e2
+(ns org.uncomplicate.magicpotion.examples.parties.example2
   (:use clojure.test))
 
 (use 'org.uncomplicate.magicpotion)

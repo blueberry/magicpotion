@@ -1,5 +1,5 @@
 ; ===== Iteration 1: Concepts, Properties, Individuals =====
-(ns org.uncomplicate.magicpotion.examples.parties.e1
+(ns org.uncomplicate.magicpotion.examples.parties.example1
   (:use clojure.test))
 
 ; ----- Including Magic Potion -----
