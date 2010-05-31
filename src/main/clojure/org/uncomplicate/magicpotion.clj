@@ -1,5 +1,4 @@
 (ns org.uncomplicate.magicpotion
-  (:use clojure.contrib.generic.functor)
   (:use org.uncomplicate.magicpotion.utils)
   (:use [org.uncomplicate.magicpotion.validation :as validation])
   (:use org.uncomplicate.magicpotion.core)

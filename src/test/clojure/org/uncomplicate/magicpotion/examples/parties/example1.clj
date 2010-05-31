@@ -1,4 +1,4 @@
-; ===== Iteration 1: Concepts, Properties, Individuals =====
+; ===== Example 1: Concepts, Properties, Individuals =====
 (ns org.uncomplicate.magicpotion.examples.parties.example1
   (:use clojure.test))
 
