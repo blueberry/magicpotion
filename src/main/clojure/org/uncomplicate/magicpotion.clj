@@ -86,3 +86,7 @@
       (do
         (def ~(suf-symbol name "?") (is-instance name-keyword#))
         (def ~name (create-concept concept-def#)))))))
+
+(defn individual
+  ([v id] (ref v :meta {:identifier id}))
+  ([v] (individual v (java.util.UUID/randomUUID))))
