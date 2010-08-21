@@ -21,3 +21,5 @@ syntax: glob
 *.swm
 syntax: regexp
 ^src/test/clojure/org/uncomplicate/magicpotion/repl\.clj$
+syntax: regexp
+\.hprof$

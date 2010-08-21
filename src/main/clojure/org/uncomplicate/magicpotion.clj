@@ -88,5 +88,7 @@
         (def ~name (create-concept concept-def#)))))))
 
 (defn individual
-  ([v id] (ref v :meta {:identifier id}))
+  ([v id]
+  {:pre [(instance? java.util.UUID id)]}
+    (ref v :meta {:identifier id}))
   ([v] (individual v (java.util.UUID/randomUUID))))
